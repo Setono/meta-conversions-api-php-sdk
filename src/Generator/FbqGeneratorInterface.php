@@ -9,12 +9,12 @@ use Setono\MetaConversionsApi\Event\Event;
 interface FbqGeneratorInterface
 {
     /**
-     * Will generate the fbq() init call based on the given event
+     * Will generate the fbq() init call based on the given event and for each pixel ids defined in the event
      */
-    public function generateInit(Event $event, string $pixelId, bool $includeScriptTag = false): string;
+    public function generateInit(Event $event, bool $includeScriptTag = false): string;
 
     /**
-     * Will generate the fbq() tracking call based on the given event
+     * Will generate the fbq() tracking call based on the given event and for each pixel ids defined in the event
      */
     public function generateTrack(Event $event, bool $includeScriptTag = false): string;
 }

@@ -57,6 +57,13 @@ final class Event extends Parameters
 
     public const EVENT_VIEW_CONTENT = 'ViewContent';
 
+    /**
+     * The pixel ids this event should be associated with
+     *
+     * @var list<string>
+     */
+    public array $pixelIds = [];
+
     public string $eventName;
 
     public int $eventTime;
