@@ -6,6 +6,7 @@ namespace Setono\MetaConversionsApi\Generator;
 
 use PHPUnit\Framework\TestCase;
 use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Pixel\Pixel;
 
 final class FbqGeneratorTest extends TestCase
 {
@@ -15,7 +16,7 @@ final class FbqGeneratorTest extends TestCase
     public function it_generates_init(): void
     {
         $event = new Event(Event::EVENT_PURCHASE);
-        $event->pixelIds = ['111', '222'];
+        $event->pixels = [new Pixel('111'), new Pixel('222')];
         $event->userData->clientIpAddress = '192.168.0.1';
         $event->userData->clientUserAgent = 'Chrome';
         /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
@@ -39,7 +40,7 @@ EXPECTED
     public function it_generates_track(): void
     {
         $event = new Event(Event::EVENT_PURCHASE);
-        $event->pixelIds = ['111', '222'];
+        $event->pixels = [new Pixel('111'), new Pixel('222')];
         $event->customData->value = 110.51;
         $event->customData->contentIds = ['PROD_1', 'PROD_2'];
 

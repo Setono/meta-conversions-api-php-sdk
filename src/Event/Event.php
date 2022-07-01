@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Event;
 
+use Setono\MetaConversionsApi\Pixel\Pixel;
+
 /**
  * The properties of this class is taken from Meta documentation: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters
  */
@@ -58,11 +60,11 @@ final class Event extends Parameters
     public const EVENT_VIEW_CONTENT = 'ViewContent';
 
     /**
-     * The pixel ids this event should be associated with
+     * The pixel this event should be associated with
      *
-     * @var list<string>
+     * @var list<Pixel>
      */
-    public array $pixelIds = [];
+    public array $pixels = [];
 
     public string $eventName;
 

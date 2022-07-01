@@ -23,8 +23,8 @@ final class FbqGenerator implements FbqGeneratorInterface
 
         $str = '';
 
-        foreach ($event->pixelIds as $pixelId) {
-            $str .= sprintf("fbq('init', '%s', %s);", $pixelId, $json);
+        foreach ($event->pixels as $pixel) {
+            $str .= sprintf("fbq('init', '%s', %s);", (string) $pixel, $json);
         }
 
         if ($includeScriptTag) {
@@ -40,7 +40,7 @@ final class FbqGenerator implements FbqGeneratorInterface
 
         $str = '';
 
-        foreach ($event->pixelIds as $_) {
+        foreach ($event->pixels as $_) {
             $str .= sprintf(
                 "fbq('%s', '%s', %s);",
                 $event->isCustom() ? 'trackCustom' : 'track',
