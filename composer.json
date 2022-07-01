@@ -1,0 +1,51 @@
+{
+    "name": "setono/meta-conversions-api-php-sdk",
+    "description": "PHP library with basic objects and more for working with Facebook/Metas Conversions API",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Joachim Løvgaard",
+            "email": "joachim@loevgaard.dk"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "infection/infection": "^0.26",
+        "phpunit/phpunit": "^9.5",
+        "psalm/plugin-phpunit": "^0.17",
+        "setono/code-quality-pack": "^2.2"
+    },
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Setono\\MetaConversionsApi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Setono\\MetaConversionsApi\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false,
+            "ergebnis/composer-normalize": true,
+            "infection/extension-installer": true
+        },
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+    "scripts": {
+        "analyse": "psalm",
+        "check-style": "ecs check",
+        "fix-style": "ecs check --fix",
+        "phpunit": "phpunit"
+    }
+}
