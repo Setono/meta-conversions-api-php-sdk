@@ -146,7 +146,7 @@ final class Event extends Parameters
             'event_source_url' => $this->eventSourceUrl,
             'opt_out' => $this->optOut,
             'event_id' => $this->eventId,
-            'action_source' => $this->actionSource,
+            'action_source' => self::normalizeField('action_source', $this->actionSource),
             'data_processing_options' => $this->dataProcessingOptions,
             'data_processing_options_country' => $this->dataProcessingOptionsCountry,
             'data_processing_options_state' => $this->dataProcessingOptionsState,

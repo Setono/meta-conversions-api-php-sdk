@@ -22,7 +22,7 @@ final class Custom extends Parameters
 
     public ?string $deliveryCategory = null;
 
-    public ?string $numItems = null;
+    public ?int $numItems = null;
 
     public ?string $orderId = null;
 
@@ -42,8 +42,8 @@ final class Custom extends Parameters
             'content_name' => $this->contentName,
             'content_type' => $this->contentType,
             'contents' => array_map(static function (Content $content): array { return $content->normalize(); }, $this->contents),
-            'currency' => $this->currency,
-            'delivery_category' => $this->deliveryCategory,
+            'currency' => self::normalizeField('currency', $this->currency),
+            'delivery_category' => self::normalizeField('delivery_category', $this->deliveryCategory),
             'num_items' => $this->numItems,
             'order_id' => $this->orderId,
             'predicted_ltv' => $this->predictedLtv,

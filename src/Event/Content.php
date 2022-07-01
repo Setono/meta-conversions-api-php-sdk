@@ -20,7 +20,7 @@ final class Content extends Parameters
             'id' => $this->id,
             'quantity' => $this->quantity,
             'item_price' => $this->itemPrice,
-            'delivery_category' => $this->deliveryCategory,
+            'delivery_category' => self::normalizeField('delivery_category', $this->deliveryCategory),
         ];
     }
 }
