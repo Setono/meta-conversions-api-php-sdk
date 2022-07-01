@@ -7,7 +7,7 @@ namespace Setono\MetaConversionsApi\Event;
 /**
  * The properties of this class is taken from Meta documentation: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters
  */
-final class Event implements Parameters
+final class Event extends Parameters
 {
     public const ACTION_SOURCE_EMAIL = 'email';
 
@@ -100,7 +100,7 @@ final class Event implements Parameters
      */
     public function isCustomEvent(): bool
     {
-        return in_array($this->eventName, self::getEvents(), true);
+        return !in_array($this->eventName, self::getEvents(), true);
     }
 
     /**
@@ -126,6 +126,23 @@ final class Event implements Parameters
             self::EVENT_SUBMIT_APPLICATION,
             self::EVENT_SUBSCRIBE,
             self::EVENT_VIEW_CONTENT,
+        ];
+    }
+
+    public function normalize(): array
+    {
+        return [
+            'event_name' => $this->eventName,
+            'event_time' => $this->eventTime,
+            'user_data' => $this->userData->normalize(),
+            'custom_data' => $this->customData->normalize(),
+            'event_source_url' => $this->eventSourceUrl,
+            'opt_out' => $this->optOut,
+            'event_id' => $this->eventId,
+            'action_source' => $this->actionSource,
+            'data_processing_options' => $this->dataProcessingOptions,
+            'data_processing_options_country' => $this->dataProcessingOptionsCountry,
+            'data_processing_options_state' => $this->dataProcessingOptionsState,
         ];
     }
 }

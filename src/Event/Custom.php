@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Event;
 
-final class Custom implements Parameters
+final class Custom extends Parameters
 {
     public ?string $contentCategory = null;
 
@@ -33,4 +33,23 @@ final class Custom implements Parameters
     public ?string $status = null;
 
     public ?float $value = null;
+
+    public function normalize(): array
+    {
+        return [
+            'content_category' => $this->contentCategory,
+            'content_ids' => $this->contentIds,
+            'content_name' => $this->contentName,
+            'content_type' => $this->contentType,
+            'contents' => array_map(static function (Content $content): array { return $content->normalize(); }, $this->contents),
+            'currency' => $this->currency,
+            'delivery_category' => $this->deliveryCategory,
+            'num_items' => $this->numItems,
+            'order_id' => $this->orderId,
+            'predicted_ltv' => $this->predictedLtv,
+            'search_string' => $this->searchString,
+            'status' => $this->status,
+            'value' => $this->value,
+        ];
+    }
 }
