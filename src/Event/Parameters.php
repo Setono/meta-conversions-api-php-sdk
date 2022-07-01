@@ -10,6 +10,8 @@ abstract class Parameters
 {
     /**
      * This method must normalize the values of the object
+     *
+     * @throws \InvalidArgumentException if any of the properties cannot be normalized to a correct format
      */
     abstract public function normalize(): array;
 

@@ -18,15 +18,17 @@ final class FbqGeneratorTest extends TestCase
         $event->pixelIds = ['111', '222'];
         $event->userData->clientIpAddress = '192.168.0.1';
         $event->userData->clientUserAgent = 'Chrome';
+        /** @psalm-suppress PossiblyFalsePropertyAssignmentValue */
+        $event->userData->dateOfBirth = \DateTimeImmutable::createFromFormat('Y-m-d', '1986-07-11');
 
         $generator = new FbqGenerator();
         self::assertSame(<<<EXPECTED
-fbq('init', '111', {"client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});fbq('init', '222', {"client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});
+fbq('init', '111', {"db":"cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585","client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});fbq('init', '222', {"db":"cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585","client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});
 EXPECTED
             , $generator->generateInit($event));
 
         self::assertSame(<<<EXPECTED
-<script>fbq('init', '111', {"client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});fbq('init', '222', {"client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});</script>
+<script>fbq('init', '111', {"db":"cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585","client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});fbq('init', '222', {"db":"cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585","client_ip_address":"192.168.0.1","client_user_agent":"Chrome"});</script>
 EXPECTED
             , $generator->generateInit($event, true));
     }
