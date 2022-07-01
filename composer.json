@@ -11,6 +11,7 @@
     ],
     "require": {
         "php": ">=7.4",
+        "ext-hash": "*",
         "ext-json": "*",
         "facebook/php-business-sdk": "^13.0"
     },
