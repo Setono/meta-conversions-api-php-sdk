@@ -15,6 +15,5 @@
     </projectFiles>
     <plugins>
         <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
-        <pluginClass class="Psl\Psalm\Plugin"/>
     </plugins>
 </psalm>

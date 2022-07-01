@@ -81,7 +81,7 @@ jobs:
                 run: "composer-require-checker check --config-file=$(pwd)/composer-require-checker.json"
 
             -   name: "Run composer-unused/composer-unused"
-                run: "composer-unused || true" # todo remove this when you warnings does not have a non zero exit code
+                run: "composer-unused"
 
     static-code-analysis:
         name: "Static Code Analysis"
@@ -200,8 +200,7 @@ jobs:
         strategy:
             matrix:
                 php-version:
-                    - "7.4"
-                    - "8.0"
+                    - "8.1"
 
                 dependencies:
                     - "highest"
@@ -225,4 +224,4 @@ jobs:
             -   name: "Run infection"
                 run: "vendor/bin/infection"
                 env:
-                    STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+                    STRYKER_DASHBOARD_API_KEY: "${{ secrets.STRYKER_DASHBOARD_API_KEY }}"
