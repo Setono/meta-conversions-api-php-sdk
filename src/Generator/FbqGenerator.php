@@ -32,7 +32,7 @@ final class FbqGenerator implements FbqGeneratorInterface
     {
         $str = sprintf(
             "fbq('%s', '%s', %s);",
-            $event->isCustomEvent() ? 'trackCustom' : 'track',
+            $event->isCustom() ? 'trackCustom' : 'track',
             $event->eventName,
             $this->serializer->serialize($event->customData)
         );

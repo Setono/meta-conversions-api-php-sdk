@@ -98,7 +98,7 @@ final class Event extends Parameters
      * - https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-name
      * - https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-events
      */
-    public function isCustomEvent(): bool
+    public function isCustom(): bool
     {
         return !in_array($this->eventName, self::getEvents(), true);
     }
