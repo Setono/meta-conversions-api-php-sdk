@@ -15,9 +15,7 @@ final class Custom implements Parameters
 
     public ?string $contentType = null;
 
-    /**
-     * @var list<Content>
-     */
+    /** @var list<Content> */
     public array $contents = [];
 
     public ?string $currency = null;
