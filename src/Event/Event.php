@@ -81,6 +81,9 @@ final class Event implements Parameters
 
     public function __construct(string $eventName, string $actionSource = self::ACTION_SOURCE_WEBSITE)
     {
+        // We set this by default because of deduplication
+        // See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-id
+        $this->eventId = bin2hex(random_bytes(16));
         $this->eventName = $eventName;
         $this->eventTime = time();
         $this->userData = new User();
