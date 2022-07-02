@@ -8,5 +8,8 @@ use Setono\MetaConversionsApi\Event\Parameters;
 
 interface SerializerInterface
 {
-    public function serialize(Parameters $parameters): string;
+    /**
+     * @param Parameters|list<Parameters> $parameters
+     */
+    public function serialize($parameters): string;
 }

@@ -13,10 +13,14 @@
         "php": ">=7.4",
         "ext-hash": "*",
         "ext-json": "*",
-        "facebook/php-business-sdk": "^13.0"
+        "facebook/php-business-sdk": "^13.0",
+        "psr/http-client": "^1.0",
+        "psr/http-message": "^1.0"
     },
     "require-dev": {
         "infection/infection": "^0.26",
+        "kriswallsmith/buzz": "^1.2",
+        "nyholm/psr7": "^1.5",
         "phpunit/phpunit": "^9.5",
         "psalm/plugin-phpunit": "^0.17",
         "setono/code-quality-pack": "^2.2"

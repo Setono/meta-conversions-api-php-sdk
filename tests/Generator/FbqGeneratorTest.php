@@ -46,12 +46,12 @@ EXPECTED
 
         $generator = new FbqGenerator();
         self::assertSame(<<<EXPECTED
-fbq('track', 'Purchase', {"content_ids":{"0":"PROD_1","1":"PROD_2"},"value":110.51});fbq('track', 'Purchase', {"content_ids":{"0":"PROD_1","1":"PROD_2"},"value":110.51});
+fbq('track', 'Purchase', {"content_ids":["PROD_1","PROD_2"],"value":110.51});
 EXPECTED
             , $generator->generateTrack($event));
 
         self::assertSame(<<<EXPECTED
-<script>fbq('track', 'Purchase', {"content_ids":{"0":"PROD_1","1":"PROD_2"},"value":110.51});fbq('track', 'Purchase', {"content_ids":{"0":"PROD_1","1":"PROD_2"},"value":110.51});</script>
+<script>fbq('track', 'Purchase', {"content_ids":["PROD_1","PROD_2"],"value":110.51});</script>
 EXPECTED
             , $generator->generateTrack($event, true));
     }

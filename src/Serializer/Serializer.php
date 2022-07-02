@@ -8,12 +8,20 @@ use Setono\MetaConversionsApi\Event\Parameters;
 
 final class Serializer implements SerializerInterface
 {
-    public function serialize(Parameters $parameters): string
+    public function serialize($parameters): string
     {
-        $data = array_filter($parameters->normalize(), static function ($value): bool {
-            return !(null === $value || '' === $value || [] === $value);
-        });
+        if (is_array($parameters)) {
+            $data = array_map(static function (Parameters $params): array {
+                return array_filter($params->normalize(), static function ($value): bool {
+                    return !(null === $value || '' === $value || [] === $value);
+                });
+            }, $parameters);
+        } else {
+            $data = array_filter($parameters->normalize(), static function ($value): bool {
+                return !(null === $value || '' === $value || [] === $value);
+            });
+        }
 
-        return json_encode($data, \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT);
+        return json_encode($data, \JSON_THROW_ON_ERROR);
     }
 }

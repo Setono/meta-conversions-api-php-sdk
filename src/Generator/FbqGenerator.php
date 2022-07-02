@@ -24,7 +24,7 @@ final class FbqGenerator implements FbqGeneratorInterface
         $str = '';
 
         foreach ($event->pixels as $pixel) {
-            $str .= sprintf("fbq('init', '%s', %s);", (string) $pixel, $json);
+            $str .= sprintf("fbq('init', '%s', %s);", $pixel->id, $json);
         }
 
         if ($includeScriptTag) {
@@ -36,18 +36,12 @@ final class FbqGenerator implements FbqGeneratorInterface
 
     public function generateTrack(Event $event, bool $includeScriptTag = false): string
     {
-        $json = $this->serializer->serialize($event->customData);
-
-        $str = '';
-
-        foreach ($event->pixels as $_) {
-            $str .= sprintf(
-                "fbq('%s', '%s', %s);",
-                $event->isCustom() ? 'trackCustom' : 'track',
-                $event->eventName,
-                $json
-            );
-        }
+        $str = sprintf(
+            "fbq('%s', '%s', %s);",
+            $event->isCustom() ? 'trackCustom' : 'track',
+            $event->eventName,
+            $this->serializer->serialize($event->customData)
+        );
 
         if ($includeScriptTag) {
             $str = sprintf('<script>%s</script>', $str);

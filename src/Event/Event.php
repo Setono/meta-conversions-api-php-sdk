@@ -8,8 +8,10 @@ use Setono\MetaConversionsApi\Pixel\Pixel;
 
 /**
  * The properties of this class is taken from Meta documentation: https://developers.facebook.com/docs/marketing-api/conversions-api/parameters
+ *
+ * Intentionally _NOT_ final. This makes it easier for you to create domain specific events by extending this class
  */
-final class Event extends Parameters
+class Event extends Parameters
 {
     public const ACTION_SOURCE_EMAIL = 'email';
 
@@ -60,7 +62,15 @@ final class Event extends Parameters
     public const EVENT_VIEW_CONTENT = 'ViewContent';
 
     /**
-     * The pixel this event should be associated with
+     * The metadata is an array that is not directly related to the event parameters, but can be used to hold
+     * information you need when processing the event further down the line
+     *
+     * @var array<string, mixed>
+     */
+    public array $metadata = [];
+
+    /**
+     * Holds the list of pixel this event should 'be sent to'
      *
      * @var list<Pixel>
      */
@@ -88,9 +98,16 @@ final class Event extends Parameters
 
     public ?int $dataProcessingOptionsState = null;
 
+    /**
+     * Use this to test your implementation
+     *
+     * See https://developers.facebook.com/docs/marketing-api/conversions-api/using-the-api#testEvents
+     */
+    public ?string $testEventCode = null;
+
     public function __construct(string $eventName, string $actionSource = self::ACTION_SOURCE_WEBSITE)
     {
-        // We set this by default because of deduplication
+        // We set the event id by default because of deduplication
         // See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-id
         $this->eventId = bin2hex(random_bytes(16));
         $this->eventName = $eventName;
