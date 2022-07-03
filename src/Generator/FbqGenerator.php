@@ -37,10 +37,11 @@ final class FbqGenerator implements FbqGeneratorInterface
     public function generateTrack(Event $event, bool $includeScriptTag = false): string
     {
         $str = sprintf(
-            "fbq('%s', '%s', %s);",
+            "fbq('%s', '%s', %s, {eventID: '%s'});",
             $event->isCustom() ? 'trackCustom' : 'track',
             $event->eventName,
-            $this->serializer->serialize($event->customData)
+            $this->serializer->serialize($event->customData),
+            $event->eventId
         );
 
         if ($includeScriptTag) {

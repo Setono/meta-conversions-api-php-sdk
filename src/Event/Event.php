@@ -88,7 +88,7 @@ class Event extends Parameters
 
     public ?bool $optOut = null;
 
-    public ?string $eventId = null;
+    public string $eventId;
 
     public ?string $actionSource = null;
 
