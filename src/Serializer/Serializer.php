@@ -20,6 +20,10 @@ final class Serializer implements SerializerInterface
             $data = array_filter($parameters->normalize(), static function ($value): bool {
                 return !(null === $value || '' === $value || [] === $value);
             });
+
+            if ([] === $data) {
+                return '{}';
+            }
         }
 
         return json_encode($data, \JSON_THROW_ON_ERROR);
