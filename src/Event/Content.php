@@ -6,13 +6,25 @@ namespace Setono\MetaConversionsApi\Event;
 
 final class Content extends Parameters
 {
-    public ?string $id = null;
+    public ?string $id;
 
-    public ?int $quantity = null;
+    public ?int $quantity;
 
-    public ?float $itemPrice = null;
+    public ?float $itemPrice;
 
-    public ?string $deliveryCategory = null;
+    public ?string $deliveryCategory;
+
+    public function __construct(
+        string $id = null,
+        int $quantity = null,
+        float $itemPrice = null,
+        string $deliveryCategory = null
+    ) {
+        $this->id = $id;
+        $this->quantity = $quantity;
+        $this->itemPrice = $itemPrice;
+        $this->deliveryCategory = $deliveryCategory;
+    }
 
     public function normalize(): array
     {
