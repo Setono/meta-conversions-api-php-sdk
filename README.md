@@ -8,9 +8,14 @@
 
 ## Installation
 
+The easiest way to install this library is by installing the library along with its HTTP client dependencies:
+
 ```bash
-composer require setono/meta-conversions-api-php-sdk
+composer require setono/meta-conversions-api-php-sdk kriswallsmith/buzz nyholm/psr7
 ```
+
+If you want to use your own HTTP client, just do `composer require setono/meta-conversions-api-php-sdk` and then
+remember to set the HTTP client and factories when instantiating the `Setono\MetaConversionsApi\Client\Client`
 
 ## Usage
 
