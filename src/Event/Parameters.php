@@ -9,11 +9,23 @@ use FacebookAds\Object\ServerSide\Normalizer;
 abstract class Parameters
 {
     /**
-     * This method must normalize the values of the object
+     * Returns an array of normalized data where empty values (i.e. '', null, and []) are filtered
      *
      * @throws \InvalidArgumentException if any of the properties cannot be normalized to a correct format
      */
-    abstract public function normalize(): array;
+    public function normalizeAndFilter(): array
+    {
+        return array_filter($this->normalize(), static function ($value) {
+            return !(null === $value || '' === $value || [] === $value);
+        });
+    }
+
+    /**
+     * Returns an array where the keys are named as Meta/Facebook names them
+     *
+     * @return array<string, mixed>
+     */
+    abstract protected function normalize(): array;
 
     /**
      * @param string|list<string>|null $value
@@ -22,7 +34,7 @@ abstract class Parameters
      */
     public static function normalizeField(string $field, $value)
     {
-        if (null === $value || '' === $value || [] === $value) {
+        if (null === $value) {
             return null;
         }
 

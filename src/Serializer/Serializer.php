@@ -11,15 +11,11 @@ final class Serializer implements SerializerInterface
     public function serialize($parameters): string
     {
         if (is_array($parameters)) {
-            $data = array_map(static function (Parameters $params): array {
-                return array_filter($params->normalize(), static function ($value): bool {
-                    return !(null === $value || '' === $value || [] === $value);
-                });
+            $data = array_map(static function (Parameters $innerParameters): array {
+                return $innerParameters->normalizeAndFilter();
             }, $parameters);
         } else {
-            $data = array_filter($parameters->normalize(), static function ($value): bool {
-                return !(null === $value || '' === $value || [] === $value);
-            });
+            $data = $parameters->normalizeAndFilter();
 
             if ([] === $data) {
                 return '{}';

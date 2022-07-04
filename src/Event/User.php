@@ -53,7 +53,7 @@ final class User extends Parameters
 
     public ?int $leadId = null;
 
-    public function normalize(): array
+    protected function normalize(): array
     {
         return [
             'em' => self::hash(self::normalizeField('em', $this->email)),

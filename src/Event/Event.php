@@ -163,13 +163,13 @@ class Event extends Parameters
         ];
     }
 
-    public function normalize(): array
+    protected function normalize(): array
     {
         return [
             'event_name' => $this->eventName,
             'event_time' => $this->eventTime,
-            'user_data' => $this->userData->normalize(),
-            'custom_data' => $this->customData->normalize(),
+            'user_data' => $this->userData->normalizeAndFilter(),
+            'custom_data' => $this->customData->normalizeAndFilter(),
             'event_source_url' => $this->eventSourceUrl,
             'opt_out' => $this->optOut,
             'event_id' => $this->eventId,

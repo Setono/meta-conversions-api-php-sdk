@@ -26,7 +26,7 @@ final class Content extends Parameters
         $this->deliveryCategory = $deliveryCategory;
     }
 
-    public function normalize(): array
+    protected function normalize(): array
     {
         return [
             'id' => $this->id,
