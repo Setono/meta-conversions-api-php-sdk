@@ -130,6 +130,14 @@ class Event extends Parameters
     }
 
     /**
+     * Returns true if one or more pixels are associated with this event
+     */
+    public function hasPixels(): bool
+    {
+        return [] !== $this->pixels;
+    }
+
+    /**
      * @return list<string>
      */
     public static function getEvents(): array

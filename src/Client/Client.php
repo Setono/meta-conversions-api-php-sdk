@@ -11,11 +11,14 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Exception\ClientException;
 use Setono\MetaConversionsApi\Serializer\SerializerInterface;
 
-final class Client implements ClientInterface
+final class Client implements ClientInterface, LoggerAwareInterface
 {
     private ?HttpClientInterface $httpClient = null;
 
@@ -25,15 +28,24 @@ final class Client implements ClientInterface
 
     private ?StreamFactoryInterface $streamFactory = null;
 
+    private LoggerInterface $logger;
+
     private SerializerInterface $serializer;
 
     public function __construct(SerializerInterface $serializer)
     {
+        $this->logger = new NullLogger();
         $this->serializer = $serializer;
     }
 
     public function sendEvent(Event $event): void
     {
+        if (!$event->hasPixels()) {
+            $this->logger->error('You are trying to send events to Meta/Facebook, but you haven\'n associated any pixels with your event. This is most likely an error.');
+
+            return;
+        }
+
         $httpClient = $this->getHttpClient();
         $requestFactory = $this->getRequestFactory();
 
@@ -126,5 +138,10 @@ final class Client implements ClientInterface
     public function setStreamFactory(StreamFactoryInterface $streamFactory): void
     {
         $this->streamFactory = $streamFactory;
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        // TODO: Implement setLogger() method.
     }
 }
