@@ -6,38 +6,38 @@ namespace Setono\MetaConversionsApi\Event;
 
 final class User extends Parameters
 {
-    /** @var string|list<string>|null */
-    public $email;
+    /** @var list<string> */
+    public array $email = [];
 
-    /** @var string|list<string>|null */
-    public $phoneNumber;
+    /** @var list<string> */
+    public array $phoneNumber = [];
 
-    /** @var string|list<string>|null */
-    public $firstName;
+    /** @var list<string> */
+    public array $firstName = [];
 
-    /** @var string|list<string>|null */
-    public $lastName;
+    /** @var list<string> */
+    public array $lastName = [];
 
-    /** @var string|list<string>|null */
-    public $gender;
+    /** @var list<string> */
+    public array $gender = [];
 
-    /** @var \DateTimeInterface|list<\DateTimeInterface>|null */
-    public $dateOfBirth;
+    /** @var list<\DateTimeInterface> */
+    public array $dateOfBirth = [];
 
-    /** @var string|list<string>|null */
-    public $city;
+    /** @var list<string> */
+    public array $city = [];
 
-    /** @var string|list<string>|null */
-    public $state;
+    /** @var list<string> */
+    public array $state = [];
 
-    /** @var string|list<string>|null */
-    public $zipCode;
+    /** @var list<string> */
+    public array $zipCode = [];
 
-    /** @var string|list<string>|null */
-    public $country;
+    /** @var list<string> */
+    public array $country = [];
 
-    /** @var string|list<string>|null */
-    public $externalId;
+    /** @var list<string> */
+    public array $externalId = [];
 
     public ?string $clientIpAddress = null;
 
@@ -78,22 +78,14 @@ final class User extends Parameters
     }
 
     /**
-     * @param \DateTimeInterface|list<\DateTimeInterface>|null $dateOfBirth
+     * @param list<\DateTimeInterface> $dateOfBirth
      *
-     * @return string|list<string>|null
+     * @return list<string>
      */
-    private static function normalizeDateOfBirth($dateOfBirth)
+    private static function normalizeDateOfBirth(array $dateOfBirth): array
     {
-        if (null === $dateOfBirth) {
-            return null;
-        }
-
-        if (is_array($dateOfBirth)) {
-            return array_map(static function (\DateTimeInterface $dateTime): string {
-                return $dateTime->format('Ymd');
-            }, $dateOfBirth);
-        }
-
-        return $dateOfBirth->format('Ymd');
+        return array_map(static function (\DateTimeInterface $dateTime): string {
+            return $dateTime->format('Ymd');
+        }, $dateOfBirth);
     }
 }

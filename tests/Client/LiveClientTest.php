@@ -33,7 +33,7 @@ final class LiveClientTest extends TestCase
         $event = new Event(Event::EVENT_VIEW_CONTENT);
         $event->eventSourceUrl = $testValues['url'];
         $event->userData->clientUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36';
-        $event->userData->email = $testValues['email'];
+        $event->userData->email[] = $testValues['email'];
         $event->pixels[] = new Pixel($testValues['pixelId'], $testValues['accessToken']);
         $event->testEventCode = $testValues['testEventCode'];
 
