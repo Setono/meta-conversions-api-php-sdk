@@ -12,10 +12,10 @@ final class Serializer implements SerializerInterface
     {
         if (is_array($parameters)) {
             $data = array_map(static function (Parameters $innerParameters): array {
-                return $innerParameters->normalizeAndFilter();
+                return $innerParameters->normalize();
             }, $parameters);
         } else {
-            $data = $parameters->normalizeAndFilter();
+            $data = $parameters->normalize();
 
             if ([] === $data) {
                 return '{}';

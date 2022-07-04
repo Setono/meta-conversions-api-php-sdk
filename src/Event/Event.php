@@ -163,17 +163,17 @@ class Event extends Parameters
         ];
     }
 
-    protected function normalize(): array
+    protected function getMapping(): array
     {
         return [
             'event_name' => $this->eventName,
             'event_time' => $this->eventTime,
-            'user_data' => $this->userData->normalizeAndFilter(),
-            'custom_data' => $this->customData->normalizeAndFilter(),
+            'user_data' => $this->userData,
+            'custom_data' => $this->customData,
             'event_source_url' => $this->eventSourceUrl,
             'opt_out' => $this->optOut,
             'event_id' => $this->eventId,
-            'action_source' => self::normalizeField('action_source', $this->actionSource),
+            'action_source' => $this->actionSource,
             'data_processing_options' => $this->dataProcessingOptions,
             'data_processing_options_country' => $this->dataProcessingOptionsCountry,
             'data_processing_options_state' => $this->dataProcessingOptionsState,

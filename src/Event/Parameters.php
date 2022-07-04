@@ -8,62 +8,88 @@ use FacebookAds\Object\ServerSide\Normalizer;
 
 abstract class Parameters
 {
-    /**
-     * Returns an array of normalized data where empty values (i.e. '', null, and []) are filtered
-     *
-     * @throws \InvalidArgumentException if any of the properties cannot be normalized to a correct format
-     */
-    public function normalizeAndFilter(): array
+    public function normalize(): array
     {
-        return array_filter($this->normalize(), static function ($value) {
+        return self::normalizeData($this->getMapping());
+    }
+
+    /**
+     * Returns the Meta/Facebook fields mapped to their respective values
+     *
+     * @return array<string, mixed>
+     */
+    abstract protected function getMapping(): array;
+
+    private static function normalizeData(array $data): array
+    {
+        /** @var mixed $datum */
+        foreach ($data as $field => &$datum) {
+            if ($datum instanceof \DateTimeInterface) {
+                $datum = $datum->format('Ymd');
+            } elseif ($datum instanceof self) {
+                $datum = $datum->normalize();
+            } elseif (is_array($datum)) {
+                $datum = self::normalizeData($datum);
+            } elseif (is_string($field) && is_string($datum)) {
+                $datum = Normalizer::normalize($field, $datum);
+            }
+
+            if (in_array($field, self::getHashedFields(), true)) {
+                $datum = self::hash($datum);
+            }
+        }
+        unset($datum);
+
+        return array_filter($data, static function ($value) {
             return !(null === $value || '' === $value || [] === $value);
         });
     }
 
     /**
-     * Returns an array where the keys are named as Meta/Facebook names them
+     * Returns a list of Meta/Facebook field names that must be hashed
      *
-     * @return array<string, mixed>
+     * @return list<string>
      */
-    abstract protected function normalize(): array;
-
-    /**
-     * @param string|list<string>|null $value
-     *
-     * @return string|list<string>|null
-     */
-    public static function normalizeField(string $field, $value)
+    private static function getHashedFields(): array
     {
-        if (null === $value) {
-            return null;
-        }
-
-        if (is_array($value)) {
-            return array_map(static function ($item) use ($field) {
-                return Normalizer::normalize($field, $item);
-            }, $value);
-        }
-
-        return Normalizer::normalize($field, $value);
+        return [
+            'em',
+            'ph',
+            'fn',
+            'ln',
+            'ge',
+            'db',
+            'ct',
+            'st',
+            'zp',
+        ];
     }
 
     /**
-     * @param string|list<string>|null $value
+     * @param mixed $value
      *
      * @return string|list<string>|null
      */
-    public static function hash($value)
+    private static function hash($value)
     {
         if (null === $value) {
             return null;
         }
 
-        if (is_array($value)) {
-            return array_map(static function (string $item) {
-                return hash('sha256', $item, false);
-            }, $value);
+        if (is_string($value)) {
+            return hash('sha256', $value, false);
         }
 
-        return hash('sha256', $value, false);
+        if (is_array($value)) {
+            return array_values(array_filter(array_map(static function ($item): ?string {
+                if (!is_string($item)) {
+                    return null;
+                }
+
+                return hash('sha256', $item, false);
+            }, $value)));
+        }
+
+        throw new \RuntimeException(sprintf('Unexpected type of $value. Expecting null|string|list<string>, got %s', gettype($value)));
     }
 }

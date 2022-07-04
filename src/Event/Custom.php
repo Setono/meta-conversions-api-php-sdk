@@ -34,16 +34,16 @@ final class Custom extends Parameters
 
     public ?float $value = null;
 
-    protected function normalize(): array
+    protected function getMapping(): array
     {
         return [
             'content_category' => $this->contentCategory,
             'content_ids' => $this->contentIds,
             'content_name' => $this->contentName,
             'content_type' => $this->contentType,
-            'contents' => array_map(static function (Content $content): array { return $content->normalizeAndFilter(); }, $this->contents),
-            'currency' => self::normalizeField('currency', $this->currency),
-            'delivery_category' => self::normalizeField('delivery_category', $this->deliveryCategory),
+            'contents' => $this->contents,
+            'currency' => $this->currency,
+            'delivery_category' => $this->deliveryCategory,
             'num_items' => $this->numItems,
             'order_id' => $this->orderId,
             'predicted_ltv' => $this->predictedLtv,

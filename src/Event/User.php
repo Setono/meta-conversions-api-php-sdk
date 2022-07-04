@@ -6,37 +6,37 @@ namespace Setono\MetaConversionsApi\Event;
 
 final class User extends Parameters
 {
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $email = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $phoneNumber = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $firstName = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $lastName = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $gender = [];
 
     /** @var list<\DateTimeInterface> */
     public array $dateOfBirth = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $city = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $state = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $zipCode = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $country = [];
 
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $externalId = [];
 
     public ?string $clientIpAddress = null;
@@ -53,20 +53,20 @@ final class User extends Parameters
 
     public ?int $leadId = null;
 
-    protected function normalize(): array
+    protected function getMapping(): array
     {
         return [
-            'em' => self::hash(self::normalizeField('em', $this->email)),
-            'ph' => self::hash(self::normalizeField('ph', $this->phoneNumber)),
-            'fn' => self::hash(self::normalizeField('fn', $this->firstName)),
-            'ln' => self::hash(self::normalizeField('ln', $this->lastName)),
-            'ge' => self::hash(self::normalizeField('ge', $this->gender)),
-            'db' => self::hash(self::normalizeField('db', self::normalizeDateOfBirth($this->dateOfBirth))),
-            'ct' => self::hash(self::normalizeField('ct', $this->city)),
-            'st' => self::hash(self::normalizeField('st', $this->state)),
-            'zp' => self::hash(self::normalizeField('zp', $this->zipCode)),
-            'country' => self::hash(self::normalizeField('country', $this->country)),
-            'external_id' => self::hash(self::normalizeField('external_id', $this->externalId)),
+            'em' => $this->email,
+            'ph' => $this->phoneNumber,
+            'fn' => $this->firstName,
+            'ln' => $this->lastName,
+            'ge' => $this->gender,
+            'db' => $this->dateOfBirth,
+            'ct' => $this->city,
+            'st' => $this->state,
+            'zp' => $this->zipCode,
+            'country' => $this->country,
+            'external_id' => $this->externalId,
             'client_ip_address' => $this->clientIpAddress,
             'client_user_agent' => $this->clientUserAgent,
             'fbc' => $this->fbc,
@@ -75,17 +75,5 @@ final class User extends Parameters
             'fb_login_id' => $this->fbLoginId,
             'lead_id' => $this->leadId,
         ];
-    }
-
-    /**
-     * @param list<\DateTimeInterface> $dateOfBirth
-     *
-     * @return list<string>
-     */
-    private static function normalizeDateOfBirth(array $dateOfBirth): array
-    {
-        return array_map(static function (\DateTimeInterface $dateTime): string {
-            return $dateTime->format('Ymd');
-        }, $dateOfBirth);
     }
 }

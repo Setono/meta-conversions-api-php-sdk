@@ -26,13 +26,13 @@ final class Content extends Parameters
         $this->deliveryCategory = $deliveryCategory;
     }
 
-    protected function normalize(): array
+    protected function getMapping(): array
     {
         return [
             'id' => $this->id,
             'quantity' => $this->quantity,
             'item_price' => $this->itemPrice,
-            'delivery_category' => self::normalizeField('delivery_category', $this->deliveryCategory),
+            'delivery_category' => $this->deliveryCategory,
         ];
     }
 }

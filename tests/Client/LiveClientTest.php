@@ -41,8 +41,8 @@ final class LiveClientTest extends TestCase
     }
 
     /**
-     * @return array{pixelId: string, testEventCode: string, accessToken: string, url: string, email: string }
-     * @psalm-suppress InvalidReturnType
+     * @return array{pixelId: non-empty-string, testEventCode: non-empty-string, accessToken: non-empty-string, url: non-empty-string, email: non-empty-string}
+     * @psalm-suppress InvalidReturnType,MoreSpecificReturnType
      */
     private function getTestValues(): array
     {
@@ -63,7 +63,7 @@ final class LiveClientTest extends TestCase
             $values[$variable] = $value;
         }
 
-        /** @psalm-suppress InvalidReturnStatement */
+        /** @psalm-suppress InvalidReturnStatement,LessSpecificReturnStatement */
         return $values;
     }
 }
