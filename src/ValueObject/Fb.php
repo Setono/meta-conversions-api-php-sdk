@@ -77,7 +77,7 @@ abstract class Fb
         Assert::lessThanEq($creationTime, (time() + 1) * 1000);
 
         $obj = clone $this;
-        $obj->creationTime = $creationTime instanceof \DateTimeInterface ? (int) $creationTime->format('Uv') : $creationTime;
+        $obj->creationTime = $creationTime;
 
         return $obj;
     }

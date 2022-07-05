@@ -40,6 +40,9 @@ final class FbcTest extends TestCase
         Fbc::fromString($input);
     }
 
+    /**
+     * @return list<list<string>>
+     */
     public function wrongInputs(): array
     {
         return [

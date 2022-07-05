@@ -40,6 +40,9 @@ final class FbpTest extends TestCase
         Fbp::fromString($input);
     }
 
+    /**
+     * @return list<list<string>>
+     */
     public function wrongInputs(): array
     {
         return [
