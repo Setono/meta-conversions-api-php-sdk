@@ -32,6 +32,8 @@ abstract class Parameters
                 $datum = self::normalizeData($datum);
             } elseif (is_string($field) && is_string($datum)) {
                 $datum = Normalizer::normalize($field, $datum);
+            } elseif (is_object($datum) && method_exists($datum, '__toString')) {
+                $datum = (string) $datum;
             }
 
             if (in_array($field, self::getHashedFields(), true)) {

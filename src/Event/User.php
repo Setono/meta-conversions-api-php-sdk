@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Event;
 
+use Setono\MetaConversionsApi\ValueObject\Fbc;
+use Setono\MetaConversionsApi\ValueObject\Fbp;
+
 final class User extends Parameters
 {
     /** @var list<string> */
@@ -43,9 +46,11 @@ final class User extends Parameters
 
     public ?string $clientUserAgent = null;
 
-    public ?string $fbc = null;
+    /** @var string|Fbc|null */
+    public $fbc;
 
-    public ?string $fbp = null;
+    /** @var string|Fbp|null */
+    public $fbp;
 
     public ?string $subscriptionId = null;
 

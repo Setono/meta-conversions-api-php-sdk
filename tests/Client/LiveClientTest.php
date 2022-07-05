@@ -38,6 +38,8 @@ final class LiveClientTest extends TestCase
         $event->testEventCode = $testValues['testEventCode'];
 
         $client->sendEvent($event);
+
+        self::assertTrue(true);
     }
 
     /**
