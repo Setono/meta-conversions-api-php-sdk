@@ -24,10 +24,10 @@ TODO
 [ico-version]: https://poser.pugx.org/setono/meta-conversions-api-php-sdk/v/stable
 [ico-license]: https://poser.pugx.org/setono/meta-conversions-api-php-sdk/license
 [ico-github-actions]: https://github.com/Setono/meta-conversions-api-php-sdk/workflows/build/badge.svg
-[ico-code-coverage]: https://codecov.io/gh/Setono/meta-conversions-api-php-sdk/branch/0.2.x/graph/badge.svg
-[ico-infection]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2Fmeta-conversions-api-php-sdk%2F0.2.x
+[ico-code-coverage]: https://codecov.io/gh/Setono/meta-conversions-api-php-sdk/branch/master/graph/badge.svg
+[ico-infection]: https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FSetono%2Fmeta-conversions-api-php-sdk%2Fmaster
 
 [link-packagist]: https://packagist.org/packages/setono/meta-conversions-api-php-sdk
 [link-github-actions]: https://github.com/Setono/meta-conversions-api-php-sdk/actions
 [link-code-coverage]: https://codecov.io/gh/Setono/meta-conversions-api-php-sdk
-[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/meta-conversions-api-php-sdk/0.2.x
+[link-infection]: https://dashboard.stryker-mutator.io/reports/github.com/Setono/meta-conversions-api-php-sdk/master
