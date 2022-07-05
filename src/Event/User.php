@@ -6,37 +6,37 @@ namespace Setono\MetaConversionsApi\Event;
 
 final class User extends Parameters
 {
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $email = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $phoneNumber = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $firstName = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $lastName = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $gender = [];
 
     /** @var list<\DateTimeInterface> */
     public array $dateOfBirth = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $city = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $state = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $zipCode = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $country = [];
 
-    /** @var list<non-empty-string> */
+    /** @var list<string> */
     public array $externalId = [];
 
     public ?string $clientIpAddress = null;

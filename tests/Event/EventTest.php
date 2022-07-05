@@ -19,7 +19,7 @@ final class EventTest extends TestCase
         $event->userData->email[] = 'johndoe@example.com';
         /** @psalm-suppress PropertyTypeCoercion */
         $event->userData->email[] = '';
-        /** @psalm-suppress PropertyTypeCoercion */
+        /** @psalm-suppress PropertyTypeCoercion,InvalidPropertyAssignmentValue */
         $event->userData->email[] = null;
         /** @psalm-suppress InvalidPropertyAssignmentValue */
         $event->userData->dateOfBirth[] = \DateTimeImmutable::createFromFormat('Y-m-d', '1986-07-11');
