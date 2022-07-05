@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\ValueObject;
 
+use Webmozart\Assert\Assert;
+
 /**
  * See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc
  */
@@ -46,6 +48,19 @@ final class Fbp
     public function value(): string
     {
         return sprintf('fb.%d.%d.%d', $this->subdomainIndex, $this->creationTime, $this->randomNumber);
+    }
+
+    public function creationTimeAsDateTime(): \DateTimeImmutable
+    {
+        $dateTime = \DateTimeImmutable::createFromFormat('Uv', (string) $this->creationTime);
+        Assert::notFalse($dateTime);
+
+        return $dateTime;
+    }
+
+    public function creationTimeAsSeconds(): int
+    {
+        return (int) ($this->creationTime / 1000);
     }
 
     public function __toString(): string
