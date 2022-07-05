@@ -32,10 +32,20 @@ final class FbcTest extends TestCase
 
     /**
      * @test
+     * @dataProvider wrongInputs
      */
-    public function it_handles_wrong_input(): void
+    public function it_handles_wrong_input(string $input): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        Fbc::fromString('wrong input');
+        Fbc::fromString($input);
+    }
+
+    public function wrongInputs(): array
+    {
+        return [
+            ['wrong input'],
+            ['afb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA'],
+            ['fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA_'],
+        ];
     }
 }

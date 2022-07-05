@@ -32,10 +32,20 @@ final class FbpTest extends TestCase
 
     /**
      * @test
+     * @dataProvider wrongInputs
      */
-    public function it_handles_wrong_input(): void
+    public function it_handles_wrong_input(string $input): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        Fbp::fromString('wrong input');
+        Fbp::fromString($input);
+    }
+
+    public function wrongInputs(): array
+    {
+        return [
+            ['wrong input'],
+            ['fb.1.1656874832584.1088522659a'],
+            ['afb.1.1656874832584.1088522659'],
+        ];
     }
 }
