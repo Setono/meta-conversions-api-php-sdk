@@ -32,11 +32,12 @@ class ClientException extends \RuntimeException
     public static function fromErrorResponse(ErrorResponse $errorResponse): self
     {
         $message = sprintf(
-            'An error occurred sending an event to Meta/Facebook: %s (code: %d, type: %s, trace id: %s)',
+            "An error occurred sending an event to Meta/Facebook: %s (code: %d, type: %s, trace id: %s)\n\nRaw JSON response:\n\n%s",
             $errorResponse->message,
             $errorResponse->code,
             $errorResponse->type,
-            $errorResponse->traceId
+            $errorResponse->traceId,
+            $errorResponse->json
         );
 
         return new self($message);

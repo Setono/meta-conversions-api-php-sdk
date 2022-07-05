@@ -17,7 +17,7 @@ final class ErrorResponse
     /**
      * This is the raw json response
      */
-    public string $rawJson;
+    public string $json;
 
     public string $message;
 
@@ -27,9 +27,9 @@ final class ErrorResponse
 
     public string $traceId;
 
-    private function __construct(string $rawJson, string $message, string $type, int $code, string $traceId)
+    private function __construct(string $json, string $message, string $type, int $code, string $traceId)
     {
-        $this->rawJson = $rawJson;
+        $this->json = $json;
         $this->message = $message;
         $this->type = $type;
         $this->code = $code;
