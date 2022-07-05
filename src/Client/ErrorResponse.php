@@ -14,6 +14,11 @@ use Webmozart\Assert\Assert;
  */
 final class ErrorResponse
 {
+    /**
+     * This is the raw json response
+     */
+    public string $rawJson;
+
     public string $message;
 
     public string $type;
@@ -22,8 +27,9 @@ final class ErrorResponse
 
     public string $traceId;
 
-    private function __construct(string $message, string $type, int $code, string $traceId)
+    private function __construct(string $rawJson, string $message, string $type, int $code, string $traceId)
     {
+        $this->rawJson = $rawJson;
         $this->message = $message;
         $this->type = $type;
         $this->code = $code;
@@ -58,6 +64,6 @@ final class ErrorResponse
             throw ClientException::invalidResponseFormat($json);
         }
 
-        return new self($message, $type, $code, $traceId);
+        return new self($json, $message, $type, $code, $traceId);
     }
 }
