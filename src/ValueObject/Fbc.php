@@ -11,7 +11,7 @@ use Webmozart\Assert\Assert;
  */
 final class Fbc extends Fb
 {
-    private const REGEXP_CLICK_ID = '/^fb\.([012])\.(\d{13})\.([a-zA-Z0-9]+)$/';
+    private const REGEXP_FBC = '/^fb\.([012])\.(\d{13})\.([a-zA-Z0-9]+)$/';
 
     private string $clickId;
 
@@ -25,11 +25,11 @@ final class Fbc extends Fb
     public static function fromString(string $value): self
     {
         // Must match strings like: fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA
-        if (preg_match(self::REGEXP_CLICK_ID, $value, $matches) !== 1) {
+        if (preg_match(self::REGEXP_FBC, $value, $matches) !== 1) {
             throw new \InvalidArgumentException(sprintf(
                 'The value "%s" didn\'t match the expected pattern for fbc: "%s"',
                 $value,
-                self::REGEXP_CLICK_ID
+                self::REGEXP_FBC
             ));
         }
 
@@ -54,8 +54,6 @@ final class Fbc extends Fb
 
     public function withClickId(string $clickId): self
     {
-        Assert::regex($clickId, self::REGEXP_CLICK_ID);
-
         $obj = clone $this;
         $obj->clickId = $clickId;
 
