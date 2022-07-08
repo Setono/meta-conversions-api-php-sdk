@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\ValueObject;
 
-use Webmozart\Assert\Assert;
-
 /**
  * See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc#fbc
  */
