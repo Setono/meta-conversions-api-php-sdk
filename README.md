@@ -19,7 +19,22 @@ remember to set the HTTP client and factories when instantiating the `Setono\Met
 
 ## Usage
 
-TODO
+```php
+use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Pixel\Pixel;
+use Setono\MetaConversionsApi\Serializer\Serializer;
+
+$client = new Client(new Serializer());
+
+$event = new Event(Event::EVENT_VIEW_CONTENT);
+$event->eventSourceUrl = 'https://example.com/products/blue-jeans';
+$event->userData->clientUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36';
+$event->userData->email[] = 'johndoe@example.com';
+$event->pixels[] = new Pixel('INSERT YOUR PIXEL ID', 'INSERT YOUR ACCESS TOKEN');
+// $event->testEventCode = 'test event code'; // uncomment this if you want to send a test event to Facebook
+
+$client->sendEvent($event);
+```
 
 [ico-version]: https://poser.pugx.org/setono/meta-conversions-api-php-sdk/v/stable
 [ico-license]: https://poser.pugx.org/setono/meta-conversions-api-php-sdk/license
