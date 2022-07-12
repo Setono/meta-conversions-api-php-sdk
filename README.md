@@ -24,7 +24,7 @@ use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 use Setono\MetaConversionsApi\Serializer\Serializer;
 
-$client = new Client(new Serializer());
+$client = new Client();
 
 $event = new Event(Event::EVENT_VIEW_CONTENT);
 $event->eventSourceUrl = 'https://example.com/products/blue-jeans';

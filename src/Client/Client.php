@@ -16,7 +16,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Exception\ClientException;
-use Setono\MetaConversionsApi\Serializer\SerializerInterface;
 
 final class Client implements ClientInterface, LoggerAwareInterface
 {
@@ -30,12 +29,9 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
     private LoggerInterface $logger;
 
-    private SerializerInterface $serializer;
-
-    public function __construct(SerializerInterface $serializer)
+    public function __construct()
     {
         $this->logger = new NullLogger();
-        $this->serializer = $serializer;
     }
 
     public function sendEvent(Event $event): void
@@ -49,7 +45,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
         $httpClient = $this->getHttpClient();
         $requestFactory = $this->getRequestFactory();
 
-        $data = $this->serializer->serialize([$event]);
+        $data = json_encode([$event], \JSON_THROW_ON_ERROR);
 
         foreach ($event->pixels as $pixel) {
             $body = [

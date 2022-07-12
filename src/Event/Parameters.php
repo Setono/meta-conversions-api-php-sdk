@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use FacebookAds\Object\ServerSide\Normalizer;
+use JsonSerializable;
 
-abstract class Parameters
+abstract class Parameters implements JsonSerializable
 {
+    public function jsonSerialize(): array
+    {
+        return $this->normalize();
+    }
+
     public function normalize(): array
     {
         return self::normalizeData($this->getMapping());

@@ -7,7 +7,6 @@ namespace Setono\MetaConversionsApi\Client;
 use PHPUnit\Framework\TestCase;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Pixel\Pixel;
-use Setono\MetaConversionsApi\Serializer\Serializer;
 use Webmozart\Assert\Assert;
 
 /**
@@ -27,8 +26,7 @@ final class LiveClientTest extends TestCase
             $this->markTestSkipped($e->getMessage());
         }
 
-        $serializer = new Serializer();
-        $client = new Client($serializer);
+        $client = new Client();
 
         $event = new Event(Event::EVENT_VIEW_CONTENT);
         $event->eventSourceUrl = $testValues['url'];
