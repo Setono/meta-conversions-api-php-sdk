@@ -13,9 +13,9 @@ final class FbcTest extends TestCase
      */
     public function it_has_sane_defaults(): void
     {
-        $fbp = new Fbc('clickid');
-        self::assertSame($fbp->value(), (string) $fbp);
-        self::assertMatchesRegularExpression('/^fb\.1\.[0-9]{13}\.[a-zA-Z0-9]+$/', $fbp->value());
+        $fbc = new Fbc('clickid');
+        self::assertSame($fbc->value(), (string) $fbc);
+        self::assertMatchesRegularExpression('/^fb\.1\.[0-9]{13}\.[a-zA-Z0-9]+$/', $fbc->value());
     }
 
     /**
@@ -23,11 +23,24 @@ final class FbcTest extends TestCase
      */
     public function it_instantiates_from_string(): void
     {
-        $fbp = Fbc::fromString('fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA');
+        $fbc = Fbc::fromString('fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA');
 
-        self::assertSame(1, $fbp->getSubdomainIndex());
-        self::assertSame(1657051589577, $fbp->getCreationTime());
-        self::assertSame('IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA', $fbp->getClickId());
+        self::assertSame(1, $fbc->getSubdomainIndex());
+        self::assertSame(1657051589577, $fbc->getCreationTime());
+        self::assertSame('IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA', $fbc->getClickId());
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_immutable_setters(): void
+    {
+        $fbc = Fbc::fromString('fb.1.1657051589577.ClickId');
+        $newFbc = $fbc->withClickId('NewClickId');
+
+        self::assertNotSame($fbc, $newFbc);
+        self::assertSame('ClickId', $fbc->getClickId());
+        self::assertSame('NewClickId', $newFbc->getClickId());
     }
 
     /**
