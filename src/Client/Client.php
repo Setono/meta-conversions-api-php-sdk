@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Exception\ClientException;
+use Webmozart\Assert\Assert;
 
 final class Client implements ClientInterface, LoggerAwareInterface
 {
@@ -164,7 +165,10 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
     private static function getEndpointVersion(): string
     {
-        [$major, $minor] = explode('.', InstalledVersions::getVersion('facebook/php-business-sdk'), 3);
+        $version = InstalledVersions::getVersion('facebook/php-business-sdk');
+        Assert::notNull($version);
+
+        [$major, $minor] = explode('.', $version, 3);
 
         return sprintf('v%s.%s', $major, $minor);
     }
