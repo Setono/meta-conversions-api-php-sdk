@@ -25,8 +25,13 @@ final class FbcTest extends TestCase
     {
         $fbc = Fbc::fromString('fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA');
 
+        $expectedDateTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2022-07-05 20:06:29');
+
+        self::assertNotFalse($expectedDateTime);
         self::assertSame(1, $fbc->getSubdomainIndex());
         self::assertSame(1657051589577, $fbc->getCreationTime());
+        self::assertSame(1657051589, $fbc->getCreationTimeAsSeconds());
+        self::assertSame($expectedDateTime->getTimestamp(), $fbc->getCreationTimeAsDateTime()->getTimestamp());
         self::assertSame('IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA', $fbc->getClickId());
     }
 

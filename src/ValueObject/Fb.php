@@ -84,7 +84,7 @@ abstract class Fb
 
     public function getCreationTimeAsDateTime(): \DateTimeImmutable
     {
-        $dateTime = \DateTimeImmutable::createFromFormat('Uv', (string) $this->creationTime);
+        $dateTime = \DateTimeImmutable::createFromFormat('U.v', (string) ($this->creationTime / 1000));
         Assert::notFalse($dateTime);
 
         return $dateTime;
