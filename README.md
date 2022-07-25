@@ -22,7 +22,6 @@ remember to set the HTTP client and factories when instantiating the `Setono\Met
 ```php
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Pixel\Pixel;
-use Setono\MetaConversionsApi\Serializer\Serializer;
 
 $event = new Event(Event::EVENT_VIEW_CONTENT);
 $event->eventSourceUrl = 'https://example.com/products/blue-jeans';
