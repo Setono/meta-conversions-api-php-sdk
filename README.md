@@ -29,7 +29,7 @@ $event->eventSourceUrl = 'https://example.com/products/blue-jeans';
 $event->userData->clientUserAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36';
 $event->userData->email[] = 'johndoe@example.com';
 $event->pixels[] = new Pixel('INSERT YOUR PIXEL ID', 'INSERT YOUR ACCESS TOKEN');
-// $event->testEventCode = 'test event code'; // uncomment this if you want to send a test event to Facebook
+// $event->testEventCode = 'test event code'; // uncomment this if you want to send a test event
 
 $client = new Client();
 $client->sendEvent($event);
