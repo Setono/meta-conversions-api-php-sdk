@@ -9,7 +9,6 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -67,17 +66,12 @@ final class Client implements ClientInterface, LoggerAwareInterface
             ->withHeader('Accept', 'application/json')
             ->withBody($stream);
 
-            $this->handleResponse($httpClient->sendRequest($request));
-        }
-    }
+            $response = $httpClient->sendRequest($request);
 
-    private function handleResponse(ResponseInterface $response): void
-    {
-        if ($response->getStatusCode() === 200) {
-            return;
+            if ($response->getStatusCode() !== 200) {
+                throw ClientException::fromErrorResponse(ErrorResponse::fromJson((string) $response->getBody()));
+            }
         }
-
-        throw ClientException::fromErrorResponse(ErrorResponse::fromJson((string) $response->getBody()));
     }
 
     private function getHttpClient(): HttpClientInterface
@@ -138,6 +132,6 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
     public function setLogger(LoggerInterface $logger): void
     {
-        // TODO: Implement setLogger() method.
+        $this->logger = $logger;
     }
 }
