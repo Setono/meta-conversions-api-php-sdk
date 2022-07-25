@@ -87,7 +87,7 @@ final class TestLogger extends AbstractLogger
     /** @var list<string> */
     public array $messages = [];
 
-    public function log($level, $message, array $context = [])
+    public function log($level, $message, array $context = []): void
     {
         $this->messages[] = $message;
     }
