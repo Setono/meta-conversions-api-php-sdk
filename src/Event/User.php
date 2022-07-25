@@ -81,4 +81,14 @@ final class User extends Parameters
             'lead_id' => $this->leadId,
         ];
     }
+
+    /**
+     * @see \FacebookAds\Object\ServerSide\UserData::normalize
+     */
+    protected static function getNormalizedFields(): array
+    {
+        return [
+            'em', 'ph', 'ge', 'db', 'ln', 'fn', 'ct', 'st', 'zp', 'country',
+        ];
+    }
 }

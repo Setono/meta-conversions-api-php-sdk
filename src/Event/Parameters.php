@@ -27,6 +27,13 @@ abstract class Parameters implements JsonSerializable
      */
     abstract protected function getMapping(): array;
 
+    /**
+     * Returns a list of Meta/Facebook field names that must be normalized by \FacebookAds\Object\ServerSide\Normalizer::normalize
+     *
+     * @return list<string>
+     */
+    abstract protected static function getNormalizedFields(): array;
+
     private static function normalizeData(array $data): array
     {
         /** @var mixed $datum */
@@ -37,7 +44,7 @@ abstract class Parameters implements JsonSerializable
                 $datum = $datum->normalize();
             } elseif (is_array($datum)) {
                 $datum = self::normalizeData($datum);
-            } elseif (is_string($field) && is_string($datum)) {
+            } elseif (is_string($field) && is_string($datum) && in_array($field, static::getNormalizedFields(), true)) {
                 $datum = Normalizer::normalize($field, $datum);
             } elseif (is_object($datum) && method_exists($datum, '__toString')) {
                 $datum = (string) $datum;

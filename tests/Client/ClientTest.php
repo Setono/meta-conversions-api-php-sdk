@@ -40,7 +40,7 @@ final class ClientTest extends TestCase
         $request = $httpClient->requests[0];
         self::assertSame('POST', $request->getMethod());
         self::assertSame('https://graph.facebook.com/v14.0/pixel_id/events', (string) $request->getUri());
-        self::assertSame('data=%5B%7B%22event_name%22%3A%22purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D', (string) $request->getBody());
+        self::assertSame('data=%5B%7B%22event_name%22%3A%22Purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D', (string) $request->getBody());
     }
 
     /**

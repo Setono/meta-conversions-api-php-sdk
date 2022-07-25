@@ -52,4 +52,14 @@ final class Custom extends Parameters
             'value' => $this->value,
         ];
     }
+
+    /**
+     * @see \FacebookAds\Object\ServerSide\CustomData::normalize
+     */
+    protected static function getNormalizedFields(): array
+    {
+        return [
+            'currency', 'delivery_category',
+        ];
+    }
 }

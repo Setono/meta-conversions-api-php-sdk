@@ -179,4 +179,14 @@ class Event extends Parameters
             'data_processing_options_state' => $this->dataProcessingOptionsState,
         ];
     }
+
+    /**
+     * @see \FacebookAds\Object\ServerSide\Event::normalize
+     */
+    protected static function getNormalizedFields(): array
+    {
+        return [
+            'action_source',
+        ];
+    }
 }

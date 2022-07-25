@@ -35,4 +35,14 @@ final class Content extends Parameters
             'delivery_category' => $this->deliveryCategory,
         ];
     }
+
+    /**
+     * @see \FacebookAds\Object\ServerSide\Content::normalize
+     */
+    protected static function getNormalizedFields(): array
+    {
+        return [
+            'delivery_category',
+        ];
+    }
 }
