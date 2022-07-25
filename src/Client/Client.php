@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Client;
 
 use Buzz\Client\Curl;
+use Composer\InstalledVersions;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
@@ -58,7 +59,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
             $request = $requestFactory->createRequest(
                 'POST',
-                sprintf('https://graph.facebook.com/v13.0/%s/events', $pixel->id)
+                sprintf('https://graph.facebook.com/%s/%s/events', self::getEndpointVersion(), $pixel->id)
             )
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withHeader('Accept', 'application/json')
@@ -159,5 +160,12 @@ final class Client implements ClientInterface, LoggerAwareInterface
     public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
+    }
+
+    private static function getEndpointVersion(): string
+    {
+        [$major, $minor] = explode('.', InstalledVersions::getVersion('facebook/php-business-sdk'), 3);
+
+        return sprintf('v%s.%s', $major, $minor);
     }
 }
