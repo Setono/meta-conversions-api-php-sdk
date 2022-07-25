@@ -11,12 +11,18 @@ use PHPUnit\Framework\TestCase;
  */
 final class PixelTest extends TestCase
 {
+    /**
+     * @test
+     */
     public function it_has_no_access_token_by_default(): void
     {
         $pixel = new Pixel('id');
         self::assertNull($pixel->accessToken);
     }
 
+    /**
+     * @test
+     */
     public function it_is_stringable(): void
     {
         $pixel = new Pixel('id');
