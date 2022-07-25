@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use FacebookAds\Object\ServerSide\Normalizer;
+use FacebookAds\Object\ServerSide\Util;
 use JsonSerializable;
 
 abstract class Parameters implements JsonSerializable
@@ -77,6 +78,8 @@ abstract class Parameters implements JsonSerializable
      * @param mixed $value
      *
      * @return string|list<string>|null
+     *
+     * @see Util::hash()
      */
     private static function hash($value)
     {
