@@ -42,4 +42,16 @@ class ClientException extends \RuntimeException
 
         return new self($message);
     }
+
+    /**
+     * @param class-string $class
+     */
+    public static function missingDependency(string $class, string $help): self
+    {
+        return new self(sprintf(
+            'You have a missing dependency: %s. %s',
+            $class,
+            $help
+        ));
+    }
 }

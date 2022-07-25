@@ -56,15 +56,13 @@ final class Client implements ClientInterface, LoggerAwareInterface
                 $body['test_event_code'] = $event->testEventCode;
             }
 
-            $stream = $this->getStreamFactory()->createStream(http_build_query($body));
-
             $request = $requestFactory->createRequest(
                 'POST',
                 sprintf('https://graph.facebook.com/v13.0/%s/events', $pixel->id)
             )
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withHeader('Accept', 'application/json')
-            ->withBody($stream);
+            ->withBody($this->getStreamFactory()->createStream(http_build_query($body)));
 
             $response = $httpClient->sendRequest($request);
 
@@ -77,6 +75,13 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getHttpClient(): HttpClientInterface
     {
         if (null === $this->httpClient) {
+            if (!class_exists(Curl::class)) {
+                throw ClientException::missingDependency(
+                    Curl::class,
+                    sprintf('Either set the http client with %s or run composer require kriswallsmith/buzz', self::class . '::setHttpClient()')
+                );
+            }
+
             $this->httpClient = new Curl($this->getResponseFactory());
         }
 
@@ -91,6 +96,13 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getRequestFactory(): RequestFactoryInterface
     {
         if (null === $this->requestFactory) {
+            if (!class_exists(Psr17Factory::class)) {
+                throw ClientException::missingDependency(
+                    Psr17Factory::class,
+                    sprintf('Either set the request factory with %s or run composer require nyholm/psr7', self::class . '::setRequestFactory()')
+                );
+            }
+
             $this->requestFactory = new Psr17Factory();
         }
 
@@ -105,6 +117,13 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getResponseFactory(): ResponseFactoryInterface
     {
         if (null === $this->responseFactory) {
+            if (!class_exists(Psr17Factory::class)) {
+                throw ClientException::missingDependency(
+                    Psr17Factory::class,
+                    sprintf('Either set the response factory with %s or run composer require nyholm/psr7', self::class . '::setResponseFactory()')
+                );
+            }
+
             $this->responseFactory = new Psr17Factory();
         }
 
@@ -119,6 +138,13 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getStreamFactory(): StreamFactoryInterface
     {
         if (null === $this->streamFactory) {
+            if (!class_exists(Psr17Factory::class)) {
+                throw ClientException::missingDependency(
+                    Psr17Factory::class,
+                    sprintf('Either set the stream factory with %s or run composer require nyholm/psr7', self::class . '::setStreamFactory()')
+                );
+            }
+
             $this->streamFactory = new Psr17Factory();
         }
 
