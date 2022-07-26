@@ -16,7 +16,7 @@ interface FbqGeneratorInterface
      */
     public function generateInit(
         array $pixels,
-        array $userData,
+        array $userData = [],
         bool $includePageView = true,
         bool $includeScriptTag = true
     ): string;

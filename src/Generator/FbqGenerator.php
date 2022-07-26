@@ -21,12 +21,12 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
 
     public function generateInit(
         array $pixels,
-        array $userData,
+        array $userData = [],
         bool $includePageView = true,
         bool $includeScriptTag = true
     ): string {
         try {
-            $json = json_encode($userData, \JSON_THROW_ON_ERROR);
+            $json = [] !== $userData ? json_encode($userData, \JSON_THROW_ON_ERROR) : null;
         } catch (\JsonException $e) {
             $this->logger->error($e->getMessage());
 
@@ -36,7 +36,7 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
         $str = '';
 
         foreach ($pixels as $pixel) {
-            $str .= sprintf("fbq('init', '%s', %s);", $pixel->id, $json);
+            $str .= null === $json ? sprintf("fbq('init', '%s');", $pixel->id) : sprintf("fbq('init', '%s', %s);", $pixel->id, $json);
         }
 
         if ($includePageView) {
