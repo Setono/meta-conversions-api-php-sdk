@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Generator;
 
 use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Event\Parameters;
 
 final class FbqGenerator implements FbqGeneratorInterface
 {
     public function generateInit(Event $event, bool $includeScriptTag = false): string
     {
-        $json = json_encode($event->userData, \JSON_THROW_ON_ERROR);
+        $json = json_encode($event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR);
 
         $str = '';
 
@@ -31,7 +32,7 @@ final class FbqGenerator implements FbqGeneratorInterface
             "fbq('%s', '%s', %s, {eventID: '%s'});",
             $event->isCustom() ? 'trackCustom' : 'track',
             $event->eventName,
-            json_encode($event->customData, \JSON_THROW_ON_ERROR),
+            json_encode($event->customData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR),
             $event->eventId
         );
 

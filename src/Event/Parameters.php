@@ -6,26 +6,24 @@ namespace Setono\MetaConversionsApi\Event;
 
 use FacebookAds\Object\ServerSide\Normalizer;
 use FacebookAds\Object\ServerSide\Util;
-use JsonSerializable;
 use Webmozart\Assert\Assert;
 
-abstract class Parameters implements JsonSerializable
+abstract class Parameters
 {
+    public const PAYLOAD_CONTEXT_BROWSER = 'browser';
+
+    public const PAYLOAD_CONTEXT_SERVER = 'server';
+
     /**
      * This method returns an array representation of the object ready
      * to be sent to Meta/Facebook, i.e. it's both normalized and hashed
      */
-    public function getPayload(): array
+    public function getPayload(string $context = self::PAYLOAD_CONTEXT_SERVER): array
     {
-        $payload = self::normalize($this->getMapping());
+        $payload = self::normalize($this->getMapping($context));
         Assert::isArray($payload);
 
         return $payload;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return $this->getPayload();
     }
 
     /**
@@ -33,7 +31,7 @@ abstract class Parameters implements JsonSerializable
      *
      * @return array<string, mixed>
      */
-    abstract protected function getMapping(): array;
+    abstract protected function getMapping(string $context): array;
 
     /**
      * Returns a list of Meta/Facebook field names that must be normalized by \FacebookAds\Object\ServerSide\Normalizer::normalize

@@ -58,9 +58,9 @@ final class User extends Parameters
 
     public ?int $leadId = null;
 
-    protected function getMapping(): array
+    protected function getMapping(string $context): array
     {
-        return [
+        $mapping = [
             'em' => $this->email,
             'ph' => $this->phoneNumber,
             'fn' => $this->firstName,
@@ -80,6 +80,17 @@ final class User extends Parameters
             'fb_login_id' => $this->fbLoginId,
             'lead_id' => $this->leadId,
         ];
+
+        if (self::PAYLOAD_CONTEXT_BROWSER === $context) {
+            unset(
+                $mapping['client_ip_address'],
+                $mapping['client_user_agent'],
+                $mapping['fbc'],
+                $mapping['fbp'],
+            );
+        }
+
+        return $mapping;
     }
 
     /**

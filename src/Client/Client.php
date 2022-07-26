@@ -46,7 +46,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
         $httpClient = $this->getHttpClient();
         $requestFactory = $this->getRequestFactory();
 
-        $data = json_encode([$event], \JSON_THROW_ON_ERROR);
+        $data = json_encode([$event->getPayload()], \JSON_THROW_ON_ERROR);
 
         foreach ($event->pixels as $pixel) {
             $body = [
