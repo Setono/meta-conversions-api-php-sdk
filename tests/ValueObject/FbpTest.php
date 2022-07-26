@@ -32,6 +32,19 @@ final class FbpTest extends TestCase
 
     /**
      * @test
+     */
+    public function it_has_immutable_setters(): void
+    {
+        $fbp = Fbp::fromString('fb.1.1656874832584.1088522659');
+        $newFbp = $fbp->withRandomNumber(123123);
+
+        self::assertNotSame($fbp, $newFbp);
+        self::assertSame(1088522659, $fbp->getRandomNumber());
+        self::assertSame(123123, $newFbp->getRandomNumber());
+    }
+
+    /**
+     * @test
      * @dataProvider wrongInputs
      */
     public function it_handles_wrong_input(string $input): void
