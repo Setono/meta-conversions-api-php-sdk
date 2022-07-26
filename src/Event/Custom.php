@@ -34,9 +34,19 @@ final class Custom extends Parameters
 
     public ?float $value = null;
 
+    /**
+     * This holds an array of custom properties. See https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking#custom-properties
+     *
+     * NOTICE that if you define a custom property with the same name as any of the standard properties, your
+     * custom property will be overridden by the value of the standard property
+     *
+     * @var array<string, mixed>
+     */
+    public array $customProperties = [];
+
     protected function getMapping(): array
     {
-        return [
+        return array_merge($this->customProperties, [
             'content_category' => $this->contentCategory,
             'content_ids' => $this->contentIds,
             'content_name' => $this->contentName,
@@ -50,7 +60,7 @@ final class Custom extends Parameters
             'search_string' => $this->searchString,
             'status' => $this->status,
             'value' => $this->value,
-        ];
+        ]);
     }
 
     /**
