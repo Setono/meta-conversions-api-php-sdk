@@ -4,18 +4,38 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Generator;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Event\Parameters;
 
-final class FbqGenerator implements FbqGeneratorInterface
+final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
 {
-    public function generateInit(Event $event, bool $includePageView = true, bool $includeScriptTag = false): string
+    private LoggerInterface $logger;
+
+    public function __construct()
     {
-        $json = json_encode($event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR);
+        $this->logger = new NullLogger();
+    }
+
+    public function generateInit(
+        array $pixels,
+        array $userData,
+        bool $includePageView = true,
+        bool $includeScriptTag = true
+    ): string {
+        try {
+            $json = json_encode($userData, \JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            $this->logger->error($e->getMessage());
+
+            return '';
+        }
 
         $str = '';
 
-        foreach ($event->pixels as $pixel) {
+        foreach ($pixels as $pixel) {
             $str .= sprintf("fbq('init', '%s', %s);", $pixel->id, $json);
         }
 
@@ -30,7 +50,7 @@ final class FbqGenerator implements FbqGeneratorInterface
         return $str;
     }
 
-    public function generateTrack(Event $event, bool $includeScriptTag = false): string
+    public function generateTrack(Event $event, bool $includeScriptTag = true): string
     {
         $str = sprintf(
             "fbq('%s', '%s', %s, {eventID: '%s'});",
@@ -45,5 +65,10 @@ final class FbqGenerator implements FbqGeneratorInterface
         }
 
         return $str;
+    }
+
+    public function setLogger(LoggerInterface $logger): void
+    {
+        $this->logger = $logger;
     }
 }
