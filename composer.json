@@ -11,7 +11,6 @@
     ],
     "require": {
         "php": ">=7.4",
-        "ext-hash": "*",
         "ext-json": "*",
         "composer-runtime-api": "^2.0",
         "facebook/php-business-sdk": "^14.0",
