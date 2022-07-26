@@ -100,6 +100,7 @@ abstract class Parameters implements JsonSerializable
         }
         unset($datum);
 
+        // this will filter values we don't want to send to Meta/Facebook, i.e. nulls, empty strings, and empty arrays
         return array_filter($data, static function ($value): bool {
             return !(null === $value || '' === $value || [] === $value);
         });
