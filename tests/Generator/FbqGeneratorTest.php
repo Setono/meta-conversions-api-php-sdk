@@ -25,14 +25,14 @@ final class FbqGeneratorTest extends TestCase
 
         $generator = new FbqGenerator();
         self::assertSame(<<<EXPECTED
-fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});
+fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('track', 'PageView');
 EXPECTED
             , $generator->generateInit($event));
 
         self::assertSame(<<<EXPECTED
-<script>fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});</script>
+<script>fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('track', 'PageView');</script>
 EXPECTED
-            , $generator->generateInit($event, true));
+            , $generator->generateInit($event, true, true));
     }
 
     /**

@@ -9,7 +9,7 @@ use Setono\MetaConversionsApi\Event\Parameters;
 
 final class FbqGenerator implements FbqGeneratorInterface
 {
-    public function generateInit(Event $event, bool $includeScriptTag = false): string
+    public function generateInit(Event $event, bool $includePageView = true, bool $includeScriptTag = false): string
     {
         $json = json_encode($event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR);
 
@@ -17,6 +17,10 @@ final class FbqGenerator implements FbqGeneratorInterface
 
         foreach ($event->pixels as $pixel) {
             $str .= sprintf("fbq('init', '%s', %s);", $pixel->id, $json);
+        }
+
+        if ($includePageView) {
+            $str .= "fbq('track', 'PageView');";
         }
 
         if ($includeScriptTag) {
