@@ -23,7 +23,8 @@ final class FbcTest extends TestCase
      */
     public function it_instantiates_from_string(): void
     {
-        $fbc = Fbc::fromString('fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA');
+        $str = 'fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA';
+        $fbc = Fbc::fromString($str);
 
         $expectedDateTime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2022-07-05 20:06:29');
 
@@ -33,6 +34,7 @@ final class FbcTest extends TestCase
         self::assertSame(1657051589, $fbc->getCreationTimeAsSeconds());
         self::assertSame($expectedDateTime->getTimestamp(), $fbc->getCreationTimeAsDateTime()->getTimestamp());
         self::assertSame('IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA', $fbc->getClickId());
+        self::assertSame($str, $fbc->value());
     }
 
     /**

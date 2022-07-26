@@ -39,7 +39,7 @@ final class Fbc extends Fb
 
     public function value(): string
     {
-        return sprintf('fb.%d.%d.%d', $this->getSubdomainIndex(), $this->getCreationTime(), $this->clickId);
+        return sprintf('fb.%d.%d.%s', $this->getSubdomainIndex(), $this->getCreationTime(), $this->clickId);
     }
 
     /**
