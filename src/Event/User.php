@@ -91,4 +91,23 @@ final class User extends Parameters
             'em', 'ph', 'ge', 'db', 'ln', 'fn', 'ct', 'st', 'zp', 'country',
         ];
     }
+
+    /**
+     * @see \FacebookAds\Object\ServerSide\UserData::normalize
+     */
+    protected static function getHashedFields(): array
+    {
+        return [
+            'em',
+            'ph',
+            'fn',
+            'ln',
+            'ge',
+            'db',
+            'ct',
+            'st',
+            'zp',
+            'country',
+        ];
+    }
 }

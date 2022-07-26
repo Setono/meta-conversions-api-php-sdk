@@ -26,7 +26,7 @@ final class EventTest extends TestCase
             'event_source_url' => 'https://example.com/products/productId=123',
             'event_id' => 'EventId',
             'action_source' => Event::ACTION_SOURCE_SYSTEM_GENERATED,
-        ], $event->normalize());
+        ], $event->getPayload());
     }
 
     /**
@@ -39,9 +39,12 @@ final class EventTest extends TestCase
         $event->eventId = 'event_id';
         $event->userData->email[] = 'johndoe@example.com';
         $event->userData->email[] = '';
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $event->userData->email[] = null;
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $event->userData->dateOfBirth[] = \DateTimeImmutable::createFromFormat('Y-m-d', '1986-07-11');
         $event->customData->contents[] = new Content('content_id', 1);
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $event->customData->contents[] = null;
 
         self::assertEquals([
@@ -62,6 +65,6 @@ final class EventTest extends TestCase
                 ],
             ],
             'action_source' => 'website',
-        ], $event->normalize());
+        ], $event->getPayload());
     }
 }

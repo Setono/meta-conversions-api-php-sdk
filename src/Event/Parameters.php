@@ -7,17 +7,25 @@ namespace Setono\MetaConversionsApi\Event;
 use FacebookAds\Object\ServerSide\Normalizer;
 use FacebookAds\Object\ServerSide\Util;
 use JsonSerializable;
+use Webmozart\Assert\Assert;
 
 abstract class Parameters implements JsonSerializable
 {
-    public function jsonSerialize(): array
+    /**
+     * This method returns an array representation of the object ready
+     * to be sent to Meta/Facebook, i.e. it's both normalized and hashed
+     */
+    public function getPayload(): array
     {
-        return $this->normalize();
+        $payload = self::normalize($this->getMapping());
+        Assert::isArray($payload);
+
+        return $payload;
     }
 
-    public function normalize(): array
+    public function jsonSerialize(): array
     {
-        return self::normalizeData($this->getMapping());
+        return $this->getPayload();
     }
 
     /**
@@ -34,80 +42,66 @@ abstract class Parameters implements JsonSerializable
      */
     abstract protected static function getNormalizedFields(): array;
 
-    private static function normalizeData(array $data): array
-    {
-        /** @var mixed $datum */
-        foreach ($data as $field => &$datum) {
-            if ($datum instanceof \DateTimeInterface) {
-                $datum = $datum->format('Ymd');
-            } elseif ($datum instanceof self) {
-                $datum = $datum->normalize();
-            } elseif (is_array($datum)) {
-                $datum = self::normalizeData($datum);
-            } elseif (is_string($field) && is_string($datum) && in_array($field, static::getNormalizedFields(), true)) {
-                $datum = Normalizer::normalize($field, $datum);
-            } elseif (is_object($datum) && method_exists($datum, '__toString')) {
-                $datum = (string) $datum;
-            }
-
-            if (in_array($field, self::getHashedFields(), true)) {
-                $datum = self::hash($datum);
-            }
-        }
-        unset($datum);
-
-        return array_filter($data, static function ($value) {
-            return !(null === $value || '' === $value || [] === $value);
-        });
-    }
-
     /**
      * Returns a list of Meta/Facebook field names that must be hashed
      *
      * @return list<string>
      */
-    private static function getHashedFields(): array
+    protected static function getHashedFields(): array
     {
-        return [
-            'em',
-            'ph',
-            'fn',
-            'ln',
-            'ge',
-            'db',
-            'ct',
-            'st',
-            'zp',
-        ];
+        return [];
     }
 
     /**
-     * @param mixed $value
+     * @param mixed $data
      *
-     * @return string|list<string>|null
-     *
-     * @see Util::hash()
+     * @return array|string|float|int|null
      */
-    private static function hash($value)
+    private static function normalize($data, string $field = null)
     {
-        if (null === $value) {
+        if (null === $data) {
             return null;
         }
 
-        if (is_string($value)) {
-            return hash('sha256', $value, false);
+        if ($data instanceof \DateTimeInterface) {
+            $data = $data->format('Ymd');
         }
 
-        if (is_array($value)) {
-            return array_values(array_filter(array_map(static function ($item): ?string {
-                if (!is_string($item)) {
-                    return null;
-                }
-
-                return hash('sha256', $item, false);
-            }, $value)));
+        if (is_object($data) && method_exists($data, '__toString')) {
+            $data = (string) $data;
         }
 
-        throw new \RuntimeException(sprintf('Unexpected type of $value. Expecting null|string|list<string>, got %s', gettype($value)));
+        if (is_string($data)) {
+            Assert::notNull($field);
+            if (in_array($field, static::getNormalizedFields(), true)) {
+                $data = Normalizer::normalize($field, $data);
+            }
+
+            if (in_array($field, static::getHashedFields(), true)) {
+                $data = Util::hash($data);
+            }
+
+            return $data;
+        }
+
+        if (is_int($data) || is_float($data)) {
+            return $data;
+        }
+
+        Assert::isArray($data);
+
+        /** @var mixed $datum */
+        foreach ($data as $key => &$datum) {
+            if ($datum instanceof self) {
+                $datum = $datum->getPayload();
+            } else {
+                $datum = self::normalize($datum, is_string($key) ? $key : $field);
+            }
+        }
+        unset($datum);
+
+        return array_filter($data, static function ($value): bool {
+            return !(null === $value || '' === $value || [] === $value);
+        });
     }
 }
