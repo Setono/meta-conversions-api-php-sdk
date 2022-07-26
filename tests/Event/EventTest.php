@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Pixel\Pixel;
 
 final class EventTest extends TestCase
 {
@@ -66,5 +67,17 @@ final class EventTest extends TestCase
             ],
             'action_source' => 'website',
         ], $event->getPayload());
+    }
+
+    /**
+     * @test
+     */
+    public function it_tells_if_it_has_pixels(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        self::assertFalse($event->hasPixels());
+
+        $event->pixels[] = new Pixel('pixel_id');
+        self::assertTrue($event->hasPixels());
     }
 }
