@@ -21,7 +21,7 @@ final class Pixel
     public function __construct(string $id, string $accessToken = null)
     {
         $this->id = $id;
-        $this->accessToken = $accessToken;
+        $this->accessToken = '' === $accessToken ? null : $accessToken;
     }
 
     public function __toString(): string

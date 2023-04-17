@@ -28,4 +28,13 @@ final class PixelTest extends TestCase
         $pixel = new Pixel('id');
         self::assertSame('id', (string) $pixel);
     }
+
+    /**
+     * @test
+     */
+    public function it_converts_empty_string_access_token_to_null(): void
+    {
+        $pixel = new Pixel('id', '');
+        self::assertNull($pixel->accessToken);
+    }
 }
