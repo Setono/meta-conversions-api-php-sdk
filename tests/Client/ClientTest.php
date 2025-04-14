@@ -87,7 +87,11 @@ final class TestLogger extends AbstractLogger
     /** @var list<non-empty-string> */
     public array $messages = [];
 
-    public function log($level, string|\Stringable $message, array $context = []): void
+    /**
+     * @param mixed $level
+     * @param string|\Stringable $message
+     */
+    public function log($level, $message, array $context = []): void
     {
         $message = (string) $message;
         if ('' === $message) {
