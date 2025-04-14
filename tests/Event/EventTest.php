@@ -20,11 +20,13 @@ final class EventTest extends TestCase
         $event->testEventCode = 'TestEventCode';
         $event->eventSourceUrl = 'https://example.com/products/productId=123';
         $event->actionSource = Event::ACTION_SOURCE_SYSTEM_GENERATED;
+        $event->optOut = true;
 
         self::assertSame([
             'event_name' => Event::EVENT_ADD_TO_CART,
             'event_time' => 123,
             'event_source_url' => 'https://example.com/products/productId=123',
+            'opt_out' => true,
             'event_id' => 'EventId',
             'action_source' => Event::ACTION_SOURCE_SYSTEM_GENERATED,
         ], $event->getPayload());

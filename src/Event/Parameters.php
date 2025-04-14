@@ -53,7 +53,7 @@ abstract class Parameters
     /**
      * @param mixed $data
      *
-     * @return array|string|float|int|null
+     * @return array|string|float|int|bool|null
      */
     private static function normalize($data, string $field = null)
     {
@@ -65,7 +65,7 @@ abstract class Parameters
             $data = $data->format('Ymd');
         }
 
-        if (is_object($data) && method_exists($data, '__toString')) {
+        if ($data instanceof \Stringable) {
             $data = (string) $data;
         }
 
@@ -82,7 +82,7 @@ abstract class Parameters
             return $data;
         }
 
-        if (is_int($data) || is_float($data)) {
+        if (is_int($data) || is_float($data) || is_bool($data)) {
             return $data;
         }
 
