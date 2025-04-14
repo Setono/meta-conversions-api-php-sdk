@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Client;
 
-use Buzz\Client\Curl;
 use FacebookAds\ApiConfig;
-use Nyholm\Psr7\Factory\Psr17Factory;
+use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -76,14 +76,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getHttpClient(): HttpClientInterface
     {
         if (null === $this->httpClient) {
-            if (!class_exists(Curl::class)) {
-                throw ClientException::missingDependency(
-                    Curl::class,
-                    sprintf('Either set the http client with %s or run composer require kriswallsmith/buzz', self::class . '::setHttpClient()'),
-                );
-            }
-
-            $this->httpClient = new Curl($this->getResponseFactory());
+            $this->httpClient = Psr18ClientDiscovery::find();
         }
 
         return $this->httpClient;
@@ -97,14 +90,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getRequestFactory(): RequestFactoryInterface
     {
         if (null === $this->requestFactory) {
-            if (!class_exists(Psr17Factory::class)) {
-                throw ClientException::missingDependency(
-                    Psr17Factory::class,
-                    sprintf('Either set the request factory with %s or run composer require nyholm/psr7', self::class . '::setRequestFactory()'),
-                );
-            }
-
-            $this->requestFactory = new Psr17Factory();
+            $this->requestFactory = Psr17FactoryDiscovery::findRequestFactory();
         }
 
         return $this->requestFactory;
@@ -118,14 +104,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getResponseFactory(): ResponseFactoryInterface
     {
         if (null === $this->responseFactory) {
-            if (!class_exists(Psr17Factory::class)) {
-                throw ClientException::missingDependency(
-                    Psr17Factory::class,
-                    sprintf('Either set the response factory with %s or run composer require nyholm/psr7', self::class . '::setResponseFactory()'),
-                );
-            }
-
-            $this->responseFactory = new Psr17Factory();
+            $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
         }
 
         return $this->responseFactory;
@@ -139,14 +118,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private function getStreamFactory(): StreamFactoryInterface
     {
         if (null === $this->streamFactory) {
-            if (!class_exists(Psr17Factory::class)) {
-                throw ClientException::missingDependency(
-                    Psr17Factory::class,
-                    sprintf('Either set the stream factory with %s or run composer require nyholm/psr7', self::class . '::setStreamFactory()'),
-                );
-            }
-
-            $this->streamFactory = new Psr17Factory();
+            $this->streamFactory = Psr17FactoryDiscovery::findStreamFactory();
         }
 
         return $this->streamFactory;

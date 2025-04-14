@@ -97,6 +97,9 @@ final class TestLogger extends AbstractLogger
         $this->messages[] = $message;
     }
 
+    /**
+     * @param non-empty-string $regexp
+     */
     public function hasMessageMatching(string $regexp): bool
     {
         foreach ($this->messages as $message) {

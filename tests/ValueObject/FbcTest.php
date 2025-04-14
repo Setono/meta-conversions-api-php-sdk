@@ -62,14 +62,12 @@ final class FbcTest extends TestCase
     }
 
     /**
-     * @return list<list<string>>
+     * @return \Generator<array-key, array{string}>
      */
-    public function wrongInputs(): array
+    public function wrongInputs(): \Generator
     {
-        return [
-            ['wrong input'],
-            ['afb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA'],
-            ['fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA_'],
-        ];
+        yield ['wrong input'];
+        yield ['afb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA'];
+        yield ['fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA_'];
     }
 }

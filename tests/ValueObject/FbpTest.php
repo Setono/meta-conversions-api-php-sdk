@@ -55,14 +55,12 @@ final class FbpTest extends TestCase
     }
 
     /**
-     * @return list<list<string>>
+     * @return \Generator<array-key, array{string}>
      */
-    public function wrongInputs(): array
+    public function wrongInputs(): \Generator
     {
-        return [
-            ['wrong input'],
-            ['fb.1.1656874832584.1088522659a'],
-            ['afb.1.1656874832584.1088522659'],
-        ];
+        yield ['wrong input'];
+        yield ['fb.1.1656874832584.1088522659a'];
+        yield ['afb.1.1656874832584.1088522659'];
     }
 }
