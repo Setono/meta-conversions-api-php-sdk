@@ -18,7 +18,7 @@ interface FbqGeneratorInterface
         array $pixels,
         array $userData = [],
         bool $includePageView = true,
-        bool $includeScriptTag = true
+        bool $includeScriptTag = true,
     ): string;
 
     /**

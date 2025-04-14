@@ -42,6 +42,7 @@ final class LiveClientTest extends TestCase
 
     /**
      * @return array{pixelId: non-empty-string, testEventCode: non-empty-string, accessToken: non-empty-string, url: non-empty-string, email: non-empty-string}
+     *
      * @psalm-suppress InvalidReturnType,MoreSpecificReturnType
      */
     private function getTestValues(): array

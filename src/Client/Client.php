@@ -60,7 +60,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
             $request = $requestFactory->createRequest(
                 'POST',
-                sprintf('https://graph.facebook.com/%s/%s/events', self::getEndpointVersion(), $pixel->id)
+                sprintf('https://graph.facebook.com/%s/%s/events', self::getEndpointVersion(), $pixel->id),
             )
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded')
             ->withHeader('Accept', 'application/json')
@@ -80,7 +80,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
             if (!class_exists(Curl::class)) {
                 throw ClientException::missingDependency(
                     Curl::class,
-                    sprintf('Either set the http client with %s or run composer require kriswallsmith/buzz', self::class . '::setHttpClient()')
+                    sprintf('Either set the http client with %s or run composer require kriswallsmith/buzz', self::class . '::setHttpClient()'),
                 );
             }
 
@@ -101,7 +101,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
             if (!class_exists(Psr17Factory::class)) {
                 throw ClientException::missingDependency(
                     Psr17Factory::class,
-                    sprintf('Either set the request factory with %s or run composer require nyholm/psr7', self::class . '::setRequestFactory()')
+                    sprintf('Either set the request factory with %s or run composer require nyholm/psr7', self::class . '::setRequestFactory()'),
                 );
             }
 
@@ -122,7 +122,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
             if (!class_exists(Psr17Factory::class)) {
                 throw ClientException::missingDependency(
                     Psr17Factory::class,
-                    sprintf('Either set the response factory with %s or run composer require nyholm/psr7', self::class . '::setResponseFactory()')
+                    sprintf('Either set the response factory with %s or run composer require nyholm/psr7', self::class . '::setResponseFactory()'),
                 );
             }
 
@@ -143,7 +143,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
             if (!class_exists(Psr17Factory::class)) {
                 throw ClientException::missingDependency(
                     Psr17Factory::class,
-                    sprintf('Either set the stream factory with %s or run composer require nyholm/psr7', self::class . '::setStreamFactory()')
+                    sprintf('Either set the stream factory with %s or run composer require nyholm/psr7', self::class . '::setStreamFactory()'),
                 );
             }
 

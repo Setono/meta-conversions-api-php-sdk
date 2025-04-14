@@ -40,7 +40,7 @@ final class Fbp extends Fb
             'fb.%d.%d.%d',
             $this->getSubdomainIndex(),
             $this->getCreationTime(),
-            $this->getRandomNumber()
+            $this->getRandomNumber(),
         );
     }
 

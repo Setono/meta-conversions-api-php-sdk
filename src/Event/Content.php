@@ -18,7 +18,7 @@ final class Content extends Parameters
         string $id = null,
         int $quantity = null,
         float $itemPrice = null,
-        string $deliveryCategory = null
+        string $deliveryCategory = null,
     ) {
         $this->id = $id;
         $this->quantity = $quantity;

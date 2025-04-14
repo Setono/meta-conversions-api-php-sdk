@@ -23,7 +23,7 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
         array $pixels,
         array $userData = [],
         bool $includePageView = true,
-        bool $includeScriptTag = true
+        bool $includeScriptTag = true,
     ): string {
         try {
             $json = [] !== $userData ? json_encode($userData, \JSON_THROW_ON_ERROR) : null;
@@ -57,7 +57,7 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
             $event->isCustom() ? 'trackCustom' : 'track',
             $event->eventName,
             json_encode($event->customData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR),
-            $event->eventId
+            $event->eventId,
         );
 
         if ($includeScriptTag) {

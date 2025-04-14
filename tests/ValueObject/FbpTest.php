@@ -45,6 +45,7 @@ final class FbpTest extends TestCase
 
     /**
      * @test
+     *
      * @dataProvider wrongInputs
      */
     public function it_handles_wrong_input(string $input): void

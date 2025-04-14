@@ -27,7 +27,7 @@ final class Fbc extends Fb
             throw new \InvalidArgumentException(sprintf(
                 'The value "%s" didn\'t match the expected pattern for fbc: "%s"',
                 $value,
-                self::REGEXP_FBC
+                self::REGEXP_FBC,
             ));
         }
 

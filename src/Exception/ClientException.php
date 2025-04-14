@@ -14,7 +14,7 @@ class ClientException extends \RuntimeException
         $message = sprintf(
             'The response from Meta/Facebook was not valid JSON. Given input: %s. Error was: %s',
             $json,
-            $jsonException->getMessage()
+            $jsonException->getMessage(),
         );
 
         return new self($message, 0, $jsonException);
@@ -25,7 +25,7 @@ class ClientException extends \RuntimeException
         return new self(sprintf(
             'Expected a JSON response like %s, but got %s',
             '{"error":{"message":"string","type":"string","code":int,"fbtrace_id":"string"}}',
-            $json
+            $json,
         ));
     }
 
@@ -37,7 +37,7 @@ class ClientException extends \RuntimeException
             $errorResponse->code,
             $errorResponse->type,
             $errorResponse->traceId,
-            $errorResponse->json
+            $errorResponse->json,
         );
 
         return new self($message);
@@ -51,7 +51,7 @@ class ClientException extends \RuntimeException
         return new self(sprintf(
             'You have a missing dependency: %s. %s',
             $class,
-            $help
+            $help,
         ));
     }
 }
