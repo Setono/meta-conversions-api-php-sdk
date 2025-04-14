@@ -84,13 +84,17 @@ final class TestHttpClient implements HttpClientInterface
 
 final class TestLogger extends AbstractLogger
 {
-    /** @var list<string> */
+    /** @var list<non-empty-string> */
     public array $messages = [];
 
-    public function log($level, $message, array $context = []): void
+    public function log($level, string|\Stringable $message, array $context = []): void
     {
-        /** @psalm-suppress RedundantCastGivenDocblockType */
-        $this->messages[] = (string) $message;
+        $message = (string) $message;
+        if ('' === $message) {
+            return;
+        }
+
+        $this->messages[] = $message;
     }
 
     public function hasMessageMatching(string $regexp): bool

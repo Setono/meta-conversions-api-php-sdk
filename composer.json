@@ -21,13 +21,13 @@
         "webmozart/assert": "^1.11"
     },
     "require-dev": {
-        "infection/infection": "^0.26",
-        "kriswallsmith/buzz": "^1.2",
-        "nyholm/psr7": "^1.5",
-        "phpunit/phpunit": "^9.5",
-        "psalm/plugin-phpunit": "^0.17",
-        "setono/code-quality-pack": "^2.2",
-        "shipmonk/composer-dependency-analyser": "^1.8"
+        "infection/infection": "^0.26.21",
+        "kriswallsmith/buzz": "^1.3",
+        "nyholm/psr7": "^1.8",
+        "phpunit/phpunit": "^9.6",
+        "psalm/plugin-phpunit": "^0.19",
+        "setono/code-quality-pack": "^2.9",
+        "shipmonk/composer-dependency-analyser": "^1.8.2"
     },
     "prefer-stable": true,
     "autoload": {
@@ -47,11 +47,6 @@
             "infection/extension-installer": true
         },
         "sort-packages": true
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0-dev"
-        }
     },
     "scripts": {
         "analyse": "psalm",
