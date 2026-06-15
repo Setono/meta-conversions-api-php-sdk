@@ -23,8 +23,11 @@ final class LiveClientTest extends TestCase
         try {
             $testValues = $this->getTestValues();
         } catch (\InvalidArgumentException $e) {
-            $this->markTestSkipped($e->getMessage());
+            self::markTestSkipped($e->getMessage());
         }
+
+        // the test passes as long as sending the event does not throw
+        $this->expectNotToPerformAssertions();
 
         $client = new Client();
 
@@ -36,35 +39,30 @@ final class LiveClientTest extends TestCase
         $event->testEventCode = $testValues['testEventCode'];
 
         $client->sendEvent($event);
-
-        self::assertTrue(true);
     }
 
     /**
      * @return array{pixelId: non-empty-string, testEventCode: non-empty-string, accessToken: non-empty-string, url: non-empty-string, email: non-empty-string}
-     *
-     * @psalm-suppress InvalidReturnType,MoreSpecificReturnType
      */
     private function getTestValues(): array
     {
-        $envVars = [
-            'pixelId' => 'PIXEL_ID',
-            'testEventCode' => 'TEST_EVENT_CODE',
-            'accessToken' => 'ACCESS_TOKEN',
-            'url' => 'URL',
-            'email' => 'EMAIL',
+        return [
+            'pixelId' => self::env('PIXEL_ID'),
+            'testEventCode' => self::env('TEST_EVENT_CODE'),
+            'accessToken' => self::env('ACCESS_TOKEN'),
+            'url' => self::env('URL'),
+            'email' => self::env('EMAIL'),
         ];
+    }
 
-        $values = [];
+    /**
+     * @return non-empty-string
+     */
+    private static function env(string $name): string
+    {
+        $value = getenv($name);
+        Assert::stringNotEmpty($value, sprintf('%s environment value is not set', $name));
 
-        foreach ($envVars as $variable => $envVar) {
-            $value = getenv($envVar);
-            Assert::stringNotEmpty($value, sprintf('%s environment value is not set', $envVar));
-
-            $values[$variable] = $value;
-        }
-
-        /** @psalm-suppress InvalidReturnStatement,LessSpecificReturnStatement */
-        return $values;
+        return $value;
     }
 }

@@ -13,6 +13,7 @@ interface FbqGeneratorInterface
      * Will generate the fbq() init call based on the given pixels. By default, this also includes the page view event
      *
      * @param list<Pixel> $pixels
+     * @param array<string, mixed> $userData
      */
     public function generateInit(
         array $pixels,

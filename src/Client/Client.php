@@ -23,8 +23,6 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
     private ?RequestFactoryInterface $requestFactory = null;
 
-    private ?ResponseFactoryInterface $responseFactory = null;
-
     private ?StreamFactoryInterface $streamFactory = null;
 
     private LoggerInterface $logger;
@@ -101,18 +99,11 @@ final class Client implements ClientInterface, LoggerAwareInterface
         $this->requestFactory = $requestFactory;
     }
 
-    private function getResponseFactory(): ResponseFactoryInterface
-    {
-        if (null === $this->responseFactory) {
-            $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
-        }
-
-        return $this->responseFactory;
-    }
-
+    /**
+     * @deprecated the client does not create responses, so the response factory is not used; this method is kept for backwards compatibility only
+     */
     public function setResponseFactory(ResponseFactoryInterface $responseFactory): void
     {
-        $this->responseFactory = $responseFactory;
     }
 
     private function getStreamFactory(): StreamFactoryInterface
