@@ -26,6 +26,30 @@ final class ErrorResponseTest extends TestCase
         self::assertSame('OAuthException', $errorResponse->type);
         self::assertSame(100, $errorResponse->code);
         self::assertSame('trace123', $errorResponse->traceId);
+
+        // the optional fields are null when not present
+        self::assertNull($errorResponse->subcode);
+        self::assertNull($errorResponse->transient);
+        self::assertNull($errorResponse->userTitle);
+        self::assertNull($errorResponse->userMessage);
+    }
+
+    /**
+     * @test
+     */
+    public function it_captures_the_optional_fields_when_present(): void
+    {
+        $json = '{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":2804050,"is_transient":false,"error_user_title":"Customer information parameters","error_user_msg":"This event has insufficient customer information.","fbtrace_id":"trace123"}}';
+
+        $errorResponse = ErrorResponse::fromJson($json);
+
+        self::assertSame('Invalid parameter', $errorResponse->message);
+        self::assertSame(100, $errorResponse->code);
+        self::assertSame(2804050, $errorResponse->subcode);
+        self::assertFalse($errorResponse->transient);
+        self::assertSame('Customer information parameters', $errorResponse->userTitle);
+        self::assertSame('This event has insufficient customer information.', $errorResponse->userMessage);
+        self::assertSame('trace123', $errorResponse->traceId);
     }
 
     /**
