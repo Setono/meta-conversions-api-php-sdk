@@ -12,7 +12,7 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
-        "facebook/php-business-sdk": "^22.0",
+        "facebook/php-business-sdk": "^25.0",
         "php-http/discovery": "^1.20",
         "psr/http-client": "^1.0",
         "psr/http-client-implementation": "*",
@@ -22,12 +22,20 @@
         "webmozart/assert": "^1.11"
     },
     "require-dev": {
-        "infection/infection": "^0.26.21",
+        "ergebnis/composer-normalize": "^2.50",
+        "infection/infection": "^0.29",
+        "jangregor/phpstan-prophecy": "^2.3",
         "nyholm/psr7": "^1.8",
-        "phpunit/phpunit": "^9.6",
-        "psalm/plugin-phpunit": "^0.19",
-        "setono/code-quality-pack": "^2.9",
-        "shipmonk/composer-dependency-analyser": "^1.8.2",
+        "phpspec/prophecy-phpunit": "^2.5",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-webmozart-assert": "^2.0",
+        "phpunit/phpunit": "^10.5",
+        "rector/rector": "^2.4",
+        "shipmonk/composer-dependency-analyser": "^1.8",
+        "sylius-labs/coding-standard": "^4.5",
         "symfony/http-client": "^6.4 || ^7.0"
     },
     "prefer-stable": true,
@@ -46,12 +54,13 @@
             "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
             "infection/extension-installer": true,
-            "php-http/discovery": false
+            "php-http/discovery": false,
+            "phpstan/extension-installer": true
         },
         "sort-packages": true
     },
     "scripts": {
-        "analyse": "psalm",
+        "analyse": "phpstan analyse",
         "check-style": "ecs check",
         "fix-style": "ecs check --fix",
         "phpunit": "phpunit"

@@ -41,14 +41,13 @@ final class EventTest extends TestCase
         $event->eventTime = 123;
         $event->eventId = 'event_id';
         $event->userData->email[] = 'johndoe@example.com';
-        $event->userData->email[] = '';
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        $event->userData->email[] = null;
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        $event->userData->dateOfBirth[] = \DateTimeImmutable::createFromFormat('Y-m-d', '1986-07-11');
+        $event->userData->email[] = ''; // filtered out because it is empty
+
+        $dateOfBirth = \DateTimeImmutable::createFromFormat('Y-m-d', '1986-07-11');
+        self::assertNotFalse($dateOfBirth);
+        $event->userData->dateOfBirth[] = $dateOfBirth;
+
         $event->customData->contents[] = new Content('content_id', 1);
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        $event->customData->contents[] = null;
 
         self::assertEquals([
             'event_id' => 'event_id',
@@ -69,6 +68,15 @@ final class EventTest extends TestCase
             ],
             'action_source' => 'website',
         ], $event->getPayload());
+    }
+
+    /**
+     * @test
+     */
+    public function it_knows_if_it_is_a_custom_event(): void
+    {
+        self::assertFalse((new Event(Event::EVENT_PURCHASE))->isCustom());
+        self::assertTrue((new Event('SomeNonStandardEvent'))->isCustom());
     }
 
     /**

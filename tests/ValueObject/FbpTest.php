@@ -57,7 +57,7 @@ final class FbpTest extends TestCase
     /**
      * @return \Generator<array-key, array{string}>
      */
-    public function wrongInputs(): \Generator
+    public static function wrongInputs(): \Generator
     {
         yield ['wrong input'];
         yield ['fb.1.1656874832584.1088522659a'];

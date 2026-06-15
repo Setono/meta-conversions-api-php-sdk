@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\AbstractLogger;
 use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Exception\ClientException;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 
 /**
@@ -39,8 +40,56 @@ final class ClientTest extends TestCase
 
         $request = $httpClient->requests[0];
         self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://graph.facebook.com/v22.0/pixel_id/events', (string) $request->getUri());
+        self::assertSame('https://graph.facebook.com/v25.0/pixel_id/events', (string) $request->getUri());
         self::assertSame('data=%5B%7B%22event_name%22%3A%22Purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D', (string) $request->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_includes_access_token_and_test_event_code_in_the_request(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+        $event->testEventCode = 'TEST123';
+        $client->sendEvent($event);
+
+        self::assertCount(1, $httpClient->requests);
+
+        $body = (string) $httpClient->requests[0]->getBody();
+        self::assertStringContainsString('access_token=access_token', $body);
+        self::assertStringContainsString('test_event_code=TEST123', $body);
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_an_exception_when_the_response_is_not_successful(): void
+    {
+        $responseFactory = new Psr17Factory();
+
+        $httpClient = new TestHttpClient();
+        $httpClient->response = $responseFactory
+            ->createResponse(400)
+            ->withBody($responseFactory->createStream(
+                '{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"fbtrace_id":"trace123"}}',
+            ));
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+
+        $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Invalid parameter');
+
+        $client->sendEvent($event);
     }
 
     /**
@@ -69,6 +118,8 @@ final class TestHttpClient implements HttpClientInterface
     /** @var list<RequestInterface> */
     public array $requests = [];
 
+    public ?ResponseInterface $response = null;
+
     public function __construct()
     {
         $this->responseFactory = new Psr17Factory();
@@ -78,7 +129,7 @@ final class TestHttpClient implements HttpClientInterface
     {
         $this->requests[] = $request;
 
-        return $this->responseFactory->createResponse();
+        return $this->response ?? $this->responseFactory->createResponse();
     }
 }
 

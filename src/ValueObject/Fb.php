@@ -71,7 +71,6 @@ abstract class Fb
             $creationTime = (int) $creationTime->format('Uv');
         }
 
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
         Assert::integer($creationTime);
         Assert::greaterThanEq($creationTime, 1_075_590_000_000); // Facebooks founding date xD
         Assert::lessThanEq($creationTime, (time() + 1) * 1000);

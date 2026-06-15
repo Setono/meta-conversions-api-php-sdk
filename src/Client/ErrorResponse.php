@@ -51,12 +51,16 @@ final class ErrorResponse
 
         try {
             Assert::isArray($data);
+            Assert::keyExists($data, 'error');
 
-            if (!isset($data['error']['message'], $data['error']['type'], $data['error']['code'], $data['error']['fbtrace_id'])) {
+            $error = $data['error'];
+            Assert::isArray($error);
+
+            if (!isset($error['message'], $error['type'], $error['code'], $error['fbtrace_id'])) {
                 throw ClientException::invalidResponseFormat($json);
             }
 
-            ['message' => $message, 'type' => $type, 'code' => $code, 'fbtrace_id' => $traceId] = $data['error'];
+            ['message' => $message, 'type' => $type, 'code' => $code, 'fbtrace_id' => $traceId] = $error;
 
             Assert::string($message);
             Assert::string($type);

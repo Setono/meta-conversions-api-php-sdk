@@ -92,6 +92,7 @@ class Event extends Parameters
 
     public ?string $actionSource = null;
 
+    /** @var list<string> */
     public array $dataProcessingOptions = [];
 
     public ?int $dataProcessingOptionsCountry = null;

@@ -1,0 +1,7 @@
+parameters:
+    level: max
+    phpVersion: 80100
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - src
+        - tests

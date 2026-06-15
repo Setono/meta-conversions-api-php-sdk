@@ -18,7 +18,7 @@ final class Pixel
      */
     public ?string $accessToken;
 
-    public function __construct(string $id, string $accessToken = null)
+    public function __construct(string $id, ?string $accessToken = null)
     {
         $this->id = $id;
         $this->accessToken = '' === $accessToken ? null : $accessToken;

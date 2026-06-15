@@ -9,6 +9,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Event\Parameters;
+use Setono\MetaConversionsApi\Pixel\Pixel;
 
 final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
 {
@@ -19,6 +20,10 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
         $this->logger = new NullLogger();
     }
 
+    /**
+     * @param list<Pixel> $pixels
+     * @param array<string, mixed> $userData
+     */
     public function generateInit(
         array $pixels,
         array $userData = [],

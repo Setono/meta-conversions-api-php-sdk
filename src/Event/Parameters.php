@@ -17,13 +17,17 @@ abstract class Parameters
     /**
      * This method returns an array representation of the object ready
      * to be sent to Meta/Facebook, i.e. it's both normalized and hashed
+     *
+     * @return array<string, mixed>
      */
     public function getPayload(string $context = self::PAYLOAD_CONTEXT_SERVER): array
     {
-        $payload = self::normalize($this->getMapping($context));
-        Assert::isArray($payload);
+        $payload = [];
+        foreach ($this->getMapping($context) as $field => $value) {
+            $payload[$field] = $value instanceof self ? $value->getPayload() : self::normalize($value, $field);
+        }
 
-        return $payload;
+        return self::filterEmptyValues($payload);
     }
 
     /**
@@ -53,9 +57,9 @@ abstract class Parameters
     /**
      * @param mixed $data
      *
-     * @return array|string|float|int|bool|null
+     * @return array<array-key, mixed>|string|float|int|bool|null
      */
-    private static function normalize($data, string $field = null)
+    private static function normalize($data, ?string $field = null)
     {
         if (null === $data) {
             return null;
@@ -98,7 +102,20 @@ abstract class Parameters
         }
         unset($datum);
 
-        // this will filter values we don't want to send to Meta/Facebook, i.e. nulls, empty strings, and empty arrays
+        return self::filterEmptyValues($data);
+    }
+
+    /**
+     * Filters out the values we don't want to send to Meta/Facebook, i.e. nulls, empty strings, and empty arrays
+     *
+     * @template TKey of array-key
+     *
+     * @param array<TKey, mixed> $data
+     *
+     * @return array<TKey, mixed>
+     */
+    private static function filterEmptyValues(array $data): array
+    {
         return array_filter($data, static function ($value): bool {
             return !(null === $value || '' === $value || [] === $value);
         });

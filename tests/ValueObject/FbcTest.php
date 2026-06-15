@@ -52,6 +52,19 @@ final class FbcTest extends TestCase
 
     /**
      * @test
+     */
+    public function it_has_immutable_creation_time_setter(): void
+    {
+        $fbc = Fbc::fromString('fb.1.1657051589577.ClickId');
+        $newFbc = $fbc->withCreationTime(1656874832584);
+
+        self::assertNotSame($fbc, $newFbc);
+        self::assertSame(1657051589577, $fbc->getCreationTime());
+        self::assertSame(1656874832584, $newFbc->getCreationTime());
+    }
+
+    /**
+     * @test
      *
      * @dataProvider wrongInputs
      */
@@ -64,7 +77,7 @@ final class FbcTest extends TestCase
     /**
      * @return \Generator<array-key, array{string}>
      */
-    public function wrongInputs(): \Generator
+    public static function wrongInputs(): \Generator
     {
         yield ['wrong input'];
         yield ['afb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA'];

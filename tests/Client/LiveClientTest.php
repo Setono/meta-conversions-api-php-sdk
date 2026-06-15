@@ -23,8 +23,11 @@ final class LiveClientTest extends TestCase
         try {
             $testValues = $this->getTestValues();
         } catch (\InvalidArgumentException $e) {
-            $this->markTestSkipped($e->getMessage());
+            self::markTestSkipped($e->getMessage());
         }
+
+        // the test passes as long as sending the event does not throw
+        $this->expectNotToPerformAssertions();
 
         $client = new Client();
 
@@ -36,14 +39,10 @@ final class LiveClientTest extends TestCase
         $event->testEventCode = $testValues['testEventCode'];
 
         $client->sendEvent($event);
-
-        self::assertTrue(true);
     }
 
     /**
      * @return array{pixelId: non-empty-string, testEventCode: non-empty-string, accessToken: non-empty-string, url: non-empty-string, email: non-empty-string}
-     *
-     * @psalm-suppress InvalidReturnType,MoreSpecificReturnType
      */
     private function getTestValues(): array
     {
@@ -64,7 +63,6 @@ final class LiveClientTest extends TestCase
             $values[$variable] = $value;
         }
 
-        /** @psalm-suppress InvalidReturnStatement,LessSpecificReturnStatement */
         return $values;
     }
 }
