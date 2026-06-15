@@ -9,7 +9,6 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -97,13 +96,6 @@ final class Client implements ClientInterface, LoggerAwareInterface
     public function setRequestFactory(RequestFactoryInterface $requestFactory): void
     {
         $this->requestFactory = $requestFactory;
-    }
-
-    /**
-     * @deprecated the client does not create responses, so the response factory is not used; this method is kept for backwards compatibility only
-     */
-    public function setResponseFactory(ResponseFactoryInterface $responseFactory): void
-    {
     }
 
     private function getStreamFactory(): StreamFactoryInterface
