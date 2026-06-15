@@ -9,6 +9,7 @@ use Http\Discovery\Psr17FactoryDiscovery;
 use Http\Discovery\Psr18ClientDiscovery;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
@@ -21,6 +22,8 @@ final class Client implements ClientInterface, LoggerAwareInterface
     private ?HttpClientInterface $httpClient = null;
 
     private ?RequestFactoryInterface $requestFactory = null;
+
+    private ?ResponseFactoryInterface $responseFactory = null;
 
     private ?StreamFactoryInterface $streamFactory = null;
 
@@ -96,6 +99,20 @@ final class Client implements ClientInterface, LoggerAwareInterface
     public function setRequestFactory(RequestFactoryInterface $requestFactory): void
     {
         $this->requestFactory = $requestFactory;
+    }
+
+    public function getResponseFactory(): ResponseFactoryInterface
+    {
+        if (null === $this->responseFactory) {
+            $this->responseFactory = Psr17FactoryDiscovery::findResponseFactory();
+        }
+
+        return $this->responseFactory;
+    }
+
+    public function setResponseFactory(ResponseFactoryInterface $responseFactory): void
+    {
+        $this->responseFactory = $responseFactory;
     }
 
     private function getStreamFactory(): StreamFactoryInterface

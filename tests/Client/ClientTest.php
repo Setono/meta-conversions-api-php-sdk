@@ -141,6 +141,7 @@ final class TestLogger extends AbstractLogger
     /**
      * @param mixed $level
      * @param string|\Stringable $message
+     * @param array<array-key, mixed> $context
      */
     public function log($level, $message, array $context = []): void
     {
