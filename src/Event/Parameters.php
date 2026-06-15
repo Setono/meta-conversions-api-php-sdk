@@ -22,6 +22,9 @@ abstract class Parameters
      */
     public function getPayload(string $context = self::PAYLOAD_CONTEXT_SERVER): array
     {
+        // The mapping keys are field names (strings), so iterating here lets the return type stay the precise
+        // array<string, mixed> that consumers like FbqGenerator::generateInit() rely on. The recursive normalize()
+        // below works on values of unknown key type, hence it can only yield array<array-key, mixed>.
         $payload = [];
         foreach ($this->getMapping($context) as $field => $value) {
             $payload[$field] = $value instanceof self ? $value->getPayload() : self::normalize($value, $field);
