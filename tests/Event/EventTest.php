@@ -163,4 +163,64 @@ final class EventTest extends TestCase
         $event->pixels[] = new Pixel('pixel_id');
         self::assertTrue($event->hasPixels());
     }
+
+    /**
+     * @test
+     */
+    public function it_generates_an_event_id_and_event_time_by_default(): void
+    {
+        $before = time();
+        $event = new Event(Event::EVENT_PURCHASE);
+        $after = time();
+
+        self::assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $event->eventId);
+        self::assertNotSame($event->eventId, (new Event(Event::EVENT_PURCHASE))->eventId);
+        self::assertGreaterThanOrEqual($before, $event->eventTime);
+        self::assertLessThanOrEqual($after, $event->eventTime);
+        self::assertSame(Event::ACTION_SOURCE_WEBSITE, $event->actionSource);
+    }
+
+    /**
+     * @test
+     */
+    public function it_lists_the_standard_events(): void
+    {
+        $events = Event::getEvents();
+
+        self::assertSame([
+            'AddToCart',
+            'AddPaymentInfo',
+            'AddToWishlist',
+            'CompleteRegistration',
+            'Contact',
+            'CustomizeProduct',
+            'Donate',
+            'FindLocation',
+            'InitiateCheckout',
+            'Lead',
+            'Purchase',
+            'Schedule',
+            'Search',
+            'StartTrial',
+            'SubmitApplication',
+            'Subscribe',
+            'ViewContent',
+        ], $events);
+
+        foreach ($events as $eventName) {
+            self::assertFalse((new Event($eventName))->isCustom(), sprintf('%s should be a standard event', $eventName));
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_rejects_an_invalid_action_source(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE, 'not_a_valid_action_source');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $event->getPayload();
+    }
 }

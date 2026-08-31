@@ -13,7 +13,7 @@ Composer scripts (defined in `composer.json`):
 - `composer phpunit` — run the test suite (PHPUnit 10)
 - `composer analyse` — PHPStan static analysis (`phpstan.dist.neon`: `level: max`, analysed against PHP 8.1)
 - `composer check-style` / `composer fix-style` — ECS coding-standard check / autofix
-- `vendor/bin/infection` — mutation testing (thresholds: minMsi 61.74, minCoveredMsi 76.77). Needs a coverage driver (pcov or Xdebug); CI uses pcov. With neither installed locally you'll get "No code coverage driver available".
+- `vendor/bin/infection` — mutation testing (thresholds: minMsi 90, minCoveredMsi 90). Needs a coverage driver (pcov or Xdebug); CI uses pcov. With neither installed locally you'll get "No code coverage driver available".
 - `vendor/bin/composer-dependency-analyser` — verify declared composer deps match actual usage
 
 The dev tooling (PHPStan + extensions, ECS via `sylius-labs/coding-standard`, PHPUnit, Infection, Rector, composer-normalize, composer-dependency-analyser) is listed directly in `require-dev` rather than pulled in through the `setono/code-quality-pack` meta-package. The pack's current major requires PHP >= 8.2; inlining the tools keeps the whole toolchain runnable on PHP 8.1. When bumping a tool, pick the latest version that still supports PHP 8.1 (e.g. PHPUnit stays on `^10.5`, Infection on `^0.29`).
