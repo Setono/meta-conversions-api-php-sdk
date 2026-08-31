@@ -58,38 +58,46 @@ final class ErrorResponseTest extends TestCase
     public function it_throws_when_the_response_is_not_valid_json(): void
     {
         $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('The response from Meta/Facebook was not valid JSON');
 
         ErrorResponse::fromJson('this is not json');
     }
 
     /**
      * @test
+     *
+     * @dataProvider responsesWithAnInvalidFormat
      */
-    public function it_throws_when_the_response_is_not_an_array(): void
+    public function it_throws_when_the_response_does_not_have_the_expected_format(string $json): void
     {
         $this->expectException(ClientException::class);
+        $this->expectExceptionMessage('Expected a JSON response like');
 
-        ErrorResponse::fromJson('100');
+        ErrorResponse::fromJson($json);
     }
 
     /**
-     * @test
+     * @return \Generator<string, array{string}>
      */
-    public function it_throws_when_the_error_key_is_missing(): void
+    public static function responsesWithAnInvalidFormat(): \Generator
     {
-        $this->expectException(ClientException::class);
+        yield 'not an array' => ['100'];
+        yield 'missing error key' => ['{"foo":"bar"}'];
+        yield 'error is null' => ['{"error":null}'];
+        yield 'error is not an array' => ['{"error":"Invalid parameter"}'];
 
-        ErrorResponse::fromJson('{"foo":"bar"}');
-    }
+        yield 'missing message' => ['{"error":{"type":"OAuthException","code":100,"fbtrace_id":"trace123"}}'];
+        yield 'missing type' => ['{"error":{"message":"Invalid parameter","code":100,"fbtrace_id":"trace123"}}'];
+        yield 'missing code' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","fbtrace_id":"trace123"}}'];
+        yield 'missing fbtrace_id' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100}}'];
 
-    /**
-     * @test
-     */
-    public function it_throws_when_a_field_has_the_wrong_type(): void
-    {
-        $this->expectException(ClientException::class);
-
-        // the code field must be an int
-        ErrorResponse::fromJson('{"error":{"message":"m","type":"t","code":"not-an-int","fbtrace_id":"x"}}');
+        yield 'message is not a string' => ['{"error":{"message":123,"type":"OAuthException","code":100,"fbtrace_id":"trace123"}}'];
+        yield 'type is not a string' => ['{"error":{"message":"Invalid parameter","type":123,"code":100,"fbtrace_id":"trace123"}}'];
+        yield 'code is not an integer' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":"not-an-int","fbtrace_id":"trace123"}}'];
+        yield 'fbtrace_id is not a string' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"fbtrace_id":123}}'];
+        yield 'error_subcode is not an integer' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":"not-an-int","fbtrace_id":"trace123"}}'];
+        yield 'is_transient is not a boolean' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"is_transient":"yes","fbtrace_id":"trace123"}}'];
+        yield 'error_user_title is not a string' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_user_title":123,"fbtrace_id":"trace123"}}'];
+        yield 'error_user_msg is not a string' => ['{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_user_msg":123,"fbtrace_id":"trace123"}}'];
     }
 }

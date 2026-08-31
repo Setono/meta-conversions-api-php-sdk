@@ -35,4 +35,16 @@ final class ContentTest extends TestCase
 
         self::assertSame(['id' => 'product_id'], $content->getPayload());
     }
+
+    /**
+     * @test
+     */
+    public function it_rejects_an_invalid_delivery_category(): void
+    {
+        $content = new Content('product_id', 1, 9.95, 'teleportation');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $content->getPayload();
+    }
 }
