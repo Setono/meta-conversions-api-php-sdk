@@ -12,7 +12,7 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
-        "facebook/php-business-sdk": "^25.0",
+        "facebook/php-business-sdk": "^25.0 || ^26.0",
         "php-http/discovery": "^1.20",
         "psr/http-client": "^1.0",
         "psr/http-client-implementation": "*",
