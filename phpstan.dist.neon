@@ -1,5 +1,9 @@
 parameters:
     level: max
+    # CookieSettings is loaded by ParamBuilder via require_once and does not comply with the
+    # package's PSR-4 mapping, so PHPStan cannot autoload it
+    scanFiles:
+        - vendor/facebook/capi-param-builder-php/php/capi-param-builder/src/model/CookieSettings.php
     treatPhpDocTypesAsCertain: false
     paths:
         - src
