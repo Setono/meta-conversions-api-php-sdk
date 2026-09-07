@@ -183,6 +183,35 @@ $event->userData->fbc = Fbc::fromString($_COOKIE['_fbc']);
 $event->userData->fbp = Fbp::fromString($_COOKIE['_fbp']);
 ```
 
+### Resolving the cookies with Meta's parameter builder
+
+Instead of reading and parsing the cookies yourself, you can hand the raw request to the `CookieResolver`, which
+delegates to Meta's own [parameter builder](https://github.com/facebook/capi-param-builder-php)
+(`facebook/capi-param-builder-php`). It validates existing cookie values and upgrades them to the format Meta writes
+today, builds a new `fbc` from the `fbclid` query parameter, generates an `fbp` when the request has none, and tells
+you which cookies to set on the response:
+
+```php
+use Setono\MetaConversionsApi\Cookie\CookieResolver;
+
+$resolver = new CookieResolver();
+$resolvedCookies = $resolver->resolve($_SERVER['HTTP_HOST'], $_GET, $_COOKIE);
+
+$event->userData->fbc = $resolvedCookies->fbc;
+$event->userData->fbp = $resolvedCookies->fbp;
+
+foreach ($resolvedCookies->cookiesToSet as $cookie) {
+    setcookie($cookie->name, $cookie->value, [
+        'expires' => time() + $cookie->maxAge,
+        'path' => '/',
+        'domain' => $cookie->domain ?? '',
+    ]);
+}
+```
+
+On a multi-domain setup, pass your domains so the cookie domain is derived correctly, e.g.
+`new CookieResolver(['example.co.uk'])`.
+
 ## Using your own HTTP client
 
 By default the client auto-discovers a PSR-18 client and PSR-17 factories. To inject your own (e.g. a preconfigured

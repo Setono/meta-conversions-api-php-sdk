@@ -12,6 +12,7 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
+        "facebook/capi-param-builder-php": "^1.3.1",
         "facebook/php-business-sdk": "^25.0 || ^26.0",
         "php-http/discovery": "^1.20",
         "psr/http-client": "^1.0",
