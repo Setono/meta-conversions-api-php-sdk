@@ -125,14 +125,6 @@ abstract class Fb
         return $obj;
     }
 
-    /**
-     * Returns the appendix ready to be concatenated onto a value, i.e. '.AQECAQMB' or an empty string
-     */
-    final protected function appendixSuffix(): string
-    {
-        return null === $this->appendix ? '' : '.' . $this->appendix;
-    }
-
     public function getCreationTimeAsSeconds(): int
     {
         return (int) ($this->creationTime / 1000);

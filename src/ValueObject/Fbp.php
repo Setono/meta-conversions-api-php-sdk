@@ -37,13 +37,14 @@ final class Fbp extends Fb
 
     public function value(): string
     {
-        return sprintf(
-            'fb.%d.%d.%d%s',
-            $this->getSubdomainIndex(),
-            $this->getCreationTime(),
-            $this->getRandomNumber(),
-            $this->appendixSuffix(),
-        );
+        $value = sprintf('fb.%d.%d.%d', $this->getSubdomainIndex(), $this->getCreationTime(), $this->getRandomNumber());
+
+        $appendix = $this->getAppendix();
+        if (null !== $appendix) {
+            $value .= '.' . $appendix;
+        }
+
+        return $value;
     }
 
     public function getRandomNumber(): int
