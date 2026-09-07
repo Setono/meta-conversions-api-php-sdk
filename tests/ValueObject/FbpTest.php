@@ -63,4 +63,41 @@ final class FbpTest extends TestCase
         yield ['fb.1.1656874832584.1088522659a'];
         yield ['afb.1.1656874832584.1088522659'];
     }
+
+    /**
+     * Meta's own parameter builder writes a trailing appendix segment, and so does the browser pixel. Rejecting
+     * such a cookie means generating a brand new fbp on every request, which stops the server side events from
+     * matching the browser ones
+     *
+     * @test
+     *
+     * @dataProvider valuesWithAnAppendix
+     */
+    public function it_round_trips_an_appendix(string $str, string $appendix): void
+    {
+        $fbp = Fbp::fromString($str);
+
+        self::assertSame($appendix, $fbp->getAppendix());
+        self::assertSame(1088522659, $fbp->getRandomNumber());
+        self::assertSame($str, $fbp->value());
+    }
+
+    /**
+     * @return \Generator<string, array{string, string}>
+     */
+    public static function valuesWithAnAppendix(): \Generator
+    {
+        yield 'two characters' => ['fb.1.1656874832584.1088522659.AQ', 'AQ'];
+        yield 'eight characters' => ['fb.1.1656874832584.1088522659.AQEAAQMB', 'AQEAAQMB'];
+    }
+
+    /**
+     * @test
+     */
+    public function it_keeps_the_appendix_through_the_immutable_setters(): void
+    {
+        $fbp = Fbp::fromString('fb.1.1656874832584.1088522659.AQEAAQMB');
+
+        self::assertSame('fb.1.1656874832584.123123.AQEAAQMB', $fbp->withRandomNumber(123123)->value());
+    }
 }

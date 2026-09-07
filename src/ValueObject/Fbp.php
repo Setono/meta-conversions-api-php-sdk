@@ -21,9 +21,9 @@ final class Fbp extends Fb
 
     public static function fromString(string $value): self
     {
-        // Must match something like this: fb.1.1656874832584.1088522659
+        // Must match something like this: fb.1.1656874832584.1088522659 or fb.1.1656874832584.1088522659.AQEAAQMB
         // NOTICE we match for 13 digits for the creation time. That number will be 14 digits in year 2286, so I guess it's safe to test for a specific number of digits ;)
-        if (preg_match('/^fb\.([012])\.(\d{13})\.(\d+)$/', $value, $matches) !== 1) {
+        if (preg_match('/^fb\.([012])\.(\d{13})\.(\d+)(?:\.([A-Za-z0-9_-]{2,8}))?$/', $value, $matches) !== 1) {
             throw new \InvalidArgumentException(sprintf('The value "%s" didn\'t match the expected pattern for fbp', $value));
         }
 
@@ -31,16 +31,18 @@ final class Fbp extends Fb
             ->withSubdomainIndex((int) $matches[1])
             ->withCreationTime((int) $matches[2])
             ->withRandomNumber((int) $matches[3])
+            ->withAppendix(($matches[4] ?? '') === '' ? null : $matches[4])
         ;
     }
 
     public function value(): string
     {
         return sprintf(
-            'fb.%d.%d.%d',
+            'fb.%d.%d.%d%s',
             $this->getSubdomainIndex(),
             $this->getCreationTime(),
             $this->getRandomNumber(),
+            $this->appendixSuffix(),
         );
     }
 
