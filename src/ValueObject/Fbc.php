@@ -9,7 +9,14 @@ namespace Setono\MetaConversionsApi\ValueObject;
  */
 final class Fbc extends Fb
 {
-    private const REGEXP_FBC = '/^fb\.([012])\.(\d{13})\.([a-zA-Z0-9]+)$/';
+    /**
+     * Click ids are base64url, so they contain - and _, and Meta appends an optional trailing segment
+     *
+     * Must match strings like:
+     * - fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA
+     * - fb.1.1788781160733.IwAR1a-b_c.AQECAQMB
+     */
+    private const REGEXP_FBC = '/^fb\.([012])\.(\d{13})\.([A-Za-z0-9_-]+)(?:\.([A-Za-z0-9_-]{2,8}))?$/';
 
     private string $clickId;
 
@@ -22,7 +29,6 @@ final class Fbc extends Fb
 
     public static function fromString(string $value): self
     {
-        // Must match strings like: fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA
         if (preg_match(self::REGEXP_FBC, $value, $matches) !== 1) {
             throw new \InvalidArgumentException(sprintf(
                 'The value "%s" didn\'t match the expected pattern for fbc: "%s"',
@@ -34,12 +40,20 @@ final class Fbc extends Fb
         return (new self($matches[3]))
             ->withSubdomainIndex((int) $matches[1])
             ->withCreationTime((int) $matches[2])
+            ->withAppendix(($matches[4] ?? '') === '' ? null : $matches[4])
         ;
     }
 
     public function value(): string
     {
-        return sprintf('fb.%d.%d.%s', $this->getSubdomainIndex(), $this->getCreationTime(), $this->clickId);
+        $value = sprintf('fb.%d.%d.%s', $this->getSubdomainIndex(), $this->getCreationTime(), $this->clickId);
+
+        $appendix = $this->getAppendix();
+        if (null !== $appendix) {
+            $value .= '.' . $appendix;
+        }
+
+        return $value;
     }
 
     /**

@@ -131,4 +131,63 @@ final class FbTest extends TestCase
 
         (new Fbp())->withCreationTime('1656874832584'); // @phpstan-ignore argument.type
     }
+
+    /**
+     * @test
+     */
+    public function it_has_no_appendix_by_default(): void
+    {
+        $fb = new Fbp();
+
+        self::assertNull($fb->getAppendix());
+        self::assertStringEndsWith((string) $fb->getRandomNumber(), $fb->value());
+    }
+
+    /**
+     * @test
+     */
+    public function it_has_an_immutable_appendix_setter(): void
+    {
+        $fb = new Fbp();
+        $newFb = $fb->withAppendix('AQECAQMB');
+
+        self::assertNotSame($fb, $newFb);
+        self::assertNull($fb->getAppendix());
+        self::assertSame('AQECAQMB', $newFb->getAppendix());
+        self::assertStringEndsWith('.AQECAQMB', $newFb->value());
+    }
+
+    /**
+     * @test
+     */
+    public function it_removes_the_appendix(): void
+    {
+        $fb = (new Fbp())->withAppendix('AQECAQMB')->withAppendix(null);
+
+        self::assertNull($fb->getAppendix());
+        self::assertStringEndsNotWith('.AQECAQMB', $fb->value());
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider invalidAppendixes
+     */
+    public function it_rejects_an_invalid_appendix(string $appendix): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new Fbp())->withAppendix($appendix);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidAppendixes(): \Generator
+    {
+        yield 'empty' => [''];
+        yield 'too short' => ['A'];
+        yield 'too long' => ['AQECAQMBX'];
+        yield 'illegal character' => ['AQECAQM.'];
+    }
 }
