@@ -56,4 +56,4 @@ So to add a field: add the public property, map it in `getMapping()`, and regist
 
 **Value objects (`src/ValueObject/`)** — `Fbc`/`Fbp` (extending `Fb`) model the `_fbc`/`_fbp` cookie values with `fromString()` validation and `value()` serialization; assignable to `User::$fbc`/`$fbp` as either the typed object or a raw string.
 
-The `facebook/php-business-sdk` dependency is used only for `Normalizer`, `Util::hash`, and `ApiConfig::APIVersion` (the API version is pinned to whatever that package ships).
+The `facebook/php-business-sdk` dependency is used only for `Normalizer`, `Util::hash`, and `ApiConfig::APIVersion` (the API version is pinned to whatever that package ships). Dependabot (`.github/dependabot.yml`, which GitHub only reads from the default branch) watches this one package and opens a PR that widens the constraint when Meta releases a new major, for `1.x` and, through `target-branch`, for `2.x`. CI covers the normalization and hashing on the new major; run `LiveClientTest` once against it before tagging a release.
