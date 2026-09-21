@@ -18,6 +18,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Event\PreparedEvent;
 use Setono\MetaConversionsApi\Exception\ClientException;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 use Setono\MetaConversionsApi\TestLogger;
@@ -125,6 +126,116 @@ final class ClientTest extends TestCase
         }
 
         self::assertCount(1, $httpClient->requests);
+    }
+
+    /**
+     * @test
+     */
+    public function it_sends_prepared_event(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $preparedEvent = new PreparedEvent(
+            Event::EVENT_PURCHASE,
+            'event_id',
+            ['event_name' => 'Purchase', 'event_time' => 1658743659123, 'event_id' => 'event_id', 'action_source' => 'website'],
+            [new Pixel('pixel_1', 'token_1'), new Pixel('pixel_2', 'token_2')],
+            'TEST123',
+        );
+        $client->sendPreparedEvent($preparedEvent);
+
+        self::assertCount(2, $httpClient->requests);
+
+        [$first, $second] = $httpClient->requests;
+        self::assertSame('POST', $first->getMethod());
+        self::assertSame(sprintf('https://graph.facebook.com/v%s/pixel_1/events', ApiConfig::APIVersion), (string) $first->getUri());
+        self::assertSame(
+            'access_token=token_1&data=%5B%7B%22event_name%22%3A%22Purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D&test_event_code=TEST123',
+            (string) $first->getBody(),
+        );
+        self::assertSame(sprintf('https://graph.facebook.com/v%s/pixel_2/events', ApiConfig::APIVersion), (string) $second->getUri());
+        self::assertStringContainsString('access_token=token_2', (string) $second->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_sends_the_same_request_for_an_event_and_its_prepared_event(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->eventId = 'event_id';
+        $event->eventTime = 1658743659123;
+        $event->testEventCode = 'TEST123';
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+        $event->userData->email[] = 'johndoe@example.com';
+
+        $eventHttpClient = new TestHttpClient();
+        $eventClient = new Client();
+        $eventClient->setHttpClient($eventHttpClient);
+        $eventClient->sendEvent($event);
+
+        $preparedEventHttpClient = new TestHttpClient();
+        $preparedEventClient = new Client();
+        $preparedEventClient->setHttpClient($preparedEventHttpClient);
+        $preparedEventClient->sendPreparedEvent($event->prepare());
+
+        self::assertCount(1, $eventHttpClient->requests);
+        self::assertCount(1, $preparedEventHttpClient->requests);
+        self::assertSame((string) $eventHttpClient->requests[0]->getUri(), (string) $preparedEventHttpClient->requests[0]->getUri());
+        self::assertSame((string) $eventHttpClient->requests[0]->getBody(), (string) $preparedEventHttpClient->requests[0]->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_sends_a_prepared_event_that_was_queued_without_its_access_tokens(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->eventId = 'event_id';
+        $event->eventTime = 1658743659123;
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+        $event->userData->email[] = 'johndoe@example.com';
+
+        $eventHttpClient = new TestHttpClient();
+        $eventClient = new Client();
+        $eventClient->setHttpClient($eventHttpClient);
+        $eventClient->sendEvent($event);
+
+        $queued = serialize($event->prepare()->withoutAccessTokens());
+        self::assertStringNotContainsString('access_token', $queued);
+
+        $preparedEvent = unserialize($queued);
+        self::assertInstanceOf(PreparedEvent::class, $preparedEvent);
+
+        $preparedEventHttpClient = new TestHttpClient();
+        $preparedEventClient = new Client();
+        $preparedEventClient->setHttpClient($preparedEventHttpClient);
+        $preparedEventClient->sendPreparedEvent($preparedEvent->withAccessTokens(['pixel_id' => 'access_token']));
+
+        self::assertCount(1, $preparedEventHttpClient->requests);
+        self::assertSame((string) $eventHttpClient->requests[0]->getUri(), (string) $preparedEventHttpClient->requests[0]->getUri());
+        self::assertSame((string) $eventHttpClient->requests[0]->getBody(), (string) $preparedEventHttpClient->requests[0]->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_send_prepared_event_when_it_has_no_pixels(): void
+    {
+        $httpClient = new TestHttpClient();
+        $logger = new TestLogger();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+        $client->setLogger($logger);
+
+        $client->sendPreparedEvent(new PreparedEvent(Event::EVENT_PURCHASE, 'event_id', [], []));
+
+        self::assertCount(0, $httpClient->requests);
+        self::assertTrue($logger->hasMessageMatching('#you haven\'n associated any pixels#'));
     }
 
     /**

@@ -134,6 +134,27 @@ try {
 }
 ```
 
+## Sending events later, e.g. through a queue
+
+`User` holds the raw email addresses, phone numbers and names until the payload is built, so an `Event` should not be
+queued as is. `Event::prepare()` returns a `PreparedEvent` instead: the payload, already normalized and hashed, together
+with the pixels and the test event code. It is made of scalars, arrays and `Pixel` objects only, so it serializes with
+the PHP serializer or the Symfony serializer without any tricks. Hash at capture time, send later:
+
+```php
+// at capture time
+$queue->push($event->prepare()->withoutAccessTokens());
+
+// at send time
+$client->sendPreparedEvent($preparedEvent->withAccessTokens([
+    'your_pixel_id' => 'your_access_token',
+]));
+```
+
+`withoutAccessTokens()` keeps the access tokens out of the queue and of any failure storage behind it, and
+`withAccessTokens()` takes the tokens indexed by pixel id and leaves pixels that are not in the list as they are. Both
+return a new instance. If your queue is trusted with the access tokens, you can skip both calls.
+
 ## Browser-side tracking with deduplication
 
 To get the best match quality Meta recommends sending events both server-side (this SDK) *and* from the browser, using

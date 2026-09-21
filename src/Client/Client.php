@@ -14,6 +14,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
+use Setono\MetaConversionsApi\Event\PreparedEvent;
 use Setono\MetaConversionsApi\Exception\ClientException;
 
 final class Client implements ClientInterface, LoggerAwareInterface
@@ -33,7 +34,12 @@ final class Client implements ClientInterface, LoggerAwareInterface
 
     public function sendEvent(Event $event): void
     {
-        if (!$event->hasPixels()) {
+        $this->sendPreparedEvent($event->prepare());
+    }
+
+    public function sendPreparedEvent(PreparedEvent $preparedEvent): void
+    {
+        if ([] === $preparedEvent->pixels) {
             $this->logger->error('You are trying to send events to Meta/Facebook, but you haven\'n associated any pixels with your event. This is most likely an error.');
 
             return;
@@ -42,16 +48,16 @@ final class Client implements ClientInterface, LoggerAwareInterface
         $httpClient = $this->getHttpClient();
         $requestFactory = $this->getRequestFactory();
 
-        $data = json_encode([$event->getPayload()], \JSON_THROW_ON_ERROR);
+        $data = json_encode([$preparedEvent->payload], \JSON_THROW_ON_ERROR);
 
-        foreach ($event->pixels as $pixel) {
+        foreach ($preparedEvent->pixels as $pixel) {
             $body = [
                 'access_token' => $pixel->accessToken,
                 'data' => $data,
             ];
 
-            if (null !== $event->testEventCode) {
-                $body['test_event_code'] = $event->testEventCode;
+            if (null !== $preparedEvent->testEventCode) {
+                $body['test_event_code'] = $preparedEvent->testEventCode;
             }
 
             $request = $requestFactory->createRequest(
