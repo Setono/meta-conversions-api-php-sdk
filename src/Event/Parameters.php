@@ -6,7 +6,8 @@ namespace Setono\MetaConversionsApi\Event;
 
 use FacebookAds\Object\ServerSide\Normalizer;
 use FacebookAds\Object\ServerSide\Util;
-use Webmozart\Assert\Assert;
+use Setono\MetaConversionsApi\Assert;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 abstract class Parameters
 {
@@ -79,7 +80,11 @@ abstract class Parameters
         if (is_string($data)) {
             Assert::notNull($field);
             if (in_array($field, static::getNormalizedFields(), true)) {
-                $data = Normalizer::normalize($field, $data);
+                try {
+                    $data = Normalizer::normalize($field, $data);
+                } catch (\InvalidArgumentException $e) {
+                    throw new InvalidArgumentException(sprintf('The value of the field "%s" is invalid: %s', $field, $e->getMessage()), previous: $e);
+                }
             }
 
             if (in_array($field, static::getHashedFields(), true)) {

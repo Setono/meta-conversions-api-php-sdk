@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 /**
  * @covers \Setono\MetaConversionsApi\Event\Content
@@ -43,7 +44,7 @@ final class ContentTest extends TestCase
     {
         $content = new Content('product_id', 1, 9.95, 'teleportation');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $content->getPayload();
     }

@@ -118,4 +118,21 @@ EXPECTED
         self::assertSame('', $generator->generateInit([new Pixel('111')], ['em' => "\xB1\x31"]));
         self::assertTrue($logger->hasMessageMatching('/Malformed UTF-8 characters/'));
     }
+
+    /**
+     * @test
+     */
+    public function it_logs_an_error_and_returns_an_empty_string_when_the_custom_data_cannot_be_encoded(): void
+    {
+        $logger = new TestLogger();
+
+        $generator = new FbqGenerator();
+        $generator->setLogger($logger);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->customData->customProperties['my_custom'] = "\xB1\x31"; // malformed UTF-8 cannot be JSON encoded
+
+        self::assertSame('', $generator->generateTrack($event));
+        self::assertTrue($logger->hasMessageMatching('/Malformed UTF-8 characters/'));
+    }
 }

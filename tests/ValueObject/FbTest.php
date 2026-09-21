@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\ValueObject;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 /**
  * Fb is abstract, so the behaviour it shares between Fbc and Fbp is tested through Fbp
@@ -58,7 +59,7 @@ final class FbTest extends TestCase
      */
     public function it_rejects_an_invalid_subdomain_index(int $subdomainIndex): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         (new Fbp())->withSubdomainIndex($subdomainIndex);
     }
@@ -108,7 +109,7 @@ final class FbTest extends TestCase
      */
     public function it_rejects_a_creation_time_out_of_range(int $creationTime): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         (new Fbp())->withCreationTime($creationTime);
     }
@@ -127,7 +128,7 @@ final class FbTest extends TestCase
      */
     public function it_rejects_a_creation_time_that_is_neither_an_integer_nor_a_datetime(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         (new Fbp())->withCreationTime('1656874832584'); // @phpstan-ignore argument.type
     }
@@ -175,7 +176,7 @@ final class FbTest extends TestCase
      */
     public function it_rejects_an_invalid_appendix(string $appendix): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         (new Fbp())->withAppendix($appendix);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 use Setono\MetaConversionsApi\ValueObject\Fbc;
 use Setono\MetaConversionsApi\ValueObject\Fbp;
@@ -219,7 +220,8 @@ final class EventTest extends TestCase
     {
         $event = new Event(Event::EVENT_PURCHASE, 'not_a_valid_action_source');
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The value of the field "action_source" is invalid');
 
         $event->getPayload();
     }

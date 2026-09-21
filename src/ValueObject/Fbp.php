@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\ValueObject;
 
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
+
 /**
  * See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc
  */
@@ -24,7 +26,7 @@ final class Fbp extends Fb
         // Must match something like this: fb.1.1656874832584.1088522659 or fb.1.1656874832584.1088522659.AQEAAQMB
         // NOTICE we match for 13 digits for the creation time. That number will be 14 digits in year 2286, so I guess it's safe to test for a specific number of digits ;)
         if (preg_match('/^fb\.([012])\.(\d{13})\.(\d+)(?:\.([A-Za-z0-9_-]{2,8}))?$/', $value, $matches) !== 1) {
-            throw new \InvalidArgumentException(sprintf('The value "%s" didn\'t match the expected pattern for fbp', $value));
+            throw new InvalidArgumentException(sprintf('The value "%s" didn\'t match the expected pattern for fbp', $value));
         }
 
         return (new self())
