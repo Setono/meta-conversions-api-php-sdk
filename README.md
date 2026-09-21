@@ -134,7 +134,7 @@ one place. There are three concrete exceptions, one for each thing you can do ab
 
 | Exception | Thrown when | What to do |
 |---|---|---|
-| `InvalidArgumentException` | The SDK is given something it cannot work with: a pixel without an access token, event data Meta does not accept, a payload that cannot be encoded, a cookie value in the wrong format. Always thrown before any request is made | Fix the input. Retrying will not help |
+| `InvalidArgumentException` | The SDK is given something it cannot work with: an event none of whose pixels has an access token, event data Meta does not accept, a payload that cannot be encoded, a cookie value in the wrong format. Always thrown before any request is made | Fix the input. Retrying will not help |
 | `TransportException` | The request never got a response, e.g. a network error or a timeout. The exception from your HTTP client is the previous exception | Retry |
 | `ResponseException` | Meta, or a proxy in between, answered with anything but a 200 | Decide from `$e->statusCode` and `$e->errorResponse` |
 
@@ -187,8 +187,10 @@ $client->sendPreparedEvent($preparedEvent->withAccessTokens([
 `withAccessTokens()` takes the tokens indexed by pixel id and leaves pixels that are not in the list as they are. Both
 return a new instance. If your queue is trusted with the access tokens, you can skip both calls.
 
-If a pixel still has no access token when you send, the client throws an `InvalidArgumentException` that names the
-pixel, before any request is made. The event is therefore never delivered to only some of its pixels.
+Pixels that still have no access token when you send are skipped, and the client logs an error that names them. A
+pixel that is only used in the browser therefore does not keep the other pixels from receiving the event. If none of
+the pixels has an access token, which is what happens when `withAccessTokens()` is forgotten, the client throws an
+`InvalidArgumentException` before any request is made.
 
 ## Browser-side tracking with deduplication
 
@@ -257,7 +259,7 @@ $client->setStreamFactory($myPsr17StreamFactory);
 ## Logging
 
 `Client` is `LoggerAware`. Pass any PSR-3 logger and the SDK will, for example, warn you when you try to send an event
-that has no pixels associated:
+that has no pixels associated, or when it skips a pixel because it has no access token:
 
 ```php
 $client->setLogger($logger);

@@ -45,13 +45,17 @@ What to change:
 When the custom data cannot be encoded as JSON, it now logs an error and returns an empty string, which is what
 `generateInit()` already did. The output of both goes straight into a page, where an exception would break the page.
 
-## Pixels without an access token are rejected before any request is made
+## Pixels without an access token are skipped
 
 In 1.x the client sent the request anyway, and Meta answered with an error that does not mention the access token
-("Unsupported post request. Object with ID ... does not exist, cannot be loaded due to missing permissions ..."). In 2.0
-the client throws an `InvalidArgumentException` naming the pixels instead. With several pixels there is one more
-difference: all pixels are checked first, so the pixels listed before the one without an access token no longer receive
-the event.
+("Unsupported post request. Object with ID ... does not exist, cannot be loaded due to missing permissions ..."). That
+exception also kept the pixels listed after it from receiving the event.
+
+In 2.0 the client sends to every pixel that has an access token, skips the ones that do not, and logs an error naming
+them. A pixel without an access token is a legitimate state, for a pixel that is only used in the browser for instance,
+so it no longer gets in the way of the others. Only when none of the pixels has an access token does the client throw
+an `InvalidArgumentException`, before any request is made. That is what you will see if you forget
+`PreparedEvent::withAccessTokens()` after `withoutAccessTokens()`.
 
 ## Behaviour change in `Client::sendEvent()`
 

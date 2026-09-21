@@ -48,18 +48,29 @@ final class Client implements ClientInterface, LoggerAwareInterface
             return;
         }
 
-        // Meta rejects a request without an access token, and with an error that does not mention the token.
-        // All pixels are checked before anything is sent, so that the event is never delivered to only some of them
+        // Meta rejects a request without an access token, and with an error that does not mention the token, so such
+        // a pixel is never sent to. It is a legitimate state though, e.g. for a pixel that is only used in the browser,
+        // and it must not keep the other pixels from receiving the event
+        $pixels = [];
         $pixelIdsWithoutAccessToken = [];
         foreach ($preparedEvent->pixels as $pixel) {
             if (null === $pixel->accessToken || '' === $pixel->accessToken) {
                 $pixelIdsWithoutAccessToken[] = $pixel->id;
+            } else {
+                $pixels[] = $pixel;
             }
         }
 
-        if ([] !== $pixelIdsWithoutAccessToken) {
+        if ([] === $pixels) {
             throw new InvalidArgumentException(sprintf(
-                'The event was not sent to Meta/Facebook because these pixels have no access token: %s. If the access tokens were removed with PreparedEvent::withoutAccessTokens(), add them back with PreparedEvent::withAccessTokens() before sending',
+                'The event was not sent to Meta/Facebook because none of its pixels has an access token: %s. If the access tokens were removed with PreparedEvent::withoutAccessTokens(), add them back with PreparedEvent::withAccessTokens() before sending',
+                implode(', ', $pixelIdsWithoutAccessToken),
+            ));
+        }
+
+        if ([] !== $pixelIdsWithoutAccessToken) {
+            $this->logger->error(sprintf(
+                'The event was not sent to these pixels because they have no access token: %s',
                 implode(', ', $pixelIdsWithoutAccessToken),
             ));
         }
@@ -76,7 +87,7 @@ final class Client implements ClientInterface, LoggerAwareInterface
             ), previous: $e);
         }
 
-        foreach ($preparedEvent->pixels as $pixel) {
+        foreach ($pixels as $pixel) {
             $body = [
                 'access_token' => $pixel->accessToken,
                 'data' => $data,
