@@ -50,6 +50,7 @@ final class FbTest extends TestCase
         yield 'com' => [Fb::SUBDOMAIN_INDEX_COM];
         yield 'facebook.com' => [Fb::SUBDOMAIN_INDEX_FACEBOOK_COM];
         yield 'www.facebook.com' => [Fb::SUBDOMAIN_INDEX_WWW_FACEBOOK_COM];
+        yield 'a deeper domain' => [3];
     }
 
     /**
@@ -70,7 +71,7 @@ final class FbTest extends TestCase
     public static function invalidSubdomainIndexes(): \Generator
     {
         yield [-1];
-        yield [3];
+        yield [\PHP_INT_MIN];
     }
 
     /**

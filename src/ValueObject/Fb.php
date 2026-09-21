@@ -9,6 +9,11 @@ use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 abstract class Fb
 {
+    /**
+     * The subdomain index is the number of dots in the domain the cookie is set on. These are the three values Meta
+     * documents, but a cookie on a deeper domain has a higher index: Meta's own parameter builder writes fb.3. for
+     * a.b.example.co.uk
+     */
     public const SUBDOMAIN_INDEX_COM = 0;
 
     public const SUBDOMAIN_INDEX_FACEBOOK_COM = 1;
@@ -60,11 +65,7 @@ abstract class Fb
      */
     public function withSubdomainIndex(int $subdomainIndex): self
     {
-        Assert::oneOf($subdomainIndex, [
-            self::SUBDOMAIN_INDEX_COM,
-            self::SUBDOMAIN_INDEX_FACEBOOK_COM,
-            self::SUBDOMAIN_INDEX_WWW_FACEBOOK_COM,
-        ]);
+        Assert::greaterThanEq($subdomainIndex, 0);
 
         $obj = clone $this;
         $obj->subdomainIndex = $subdomainIndex;

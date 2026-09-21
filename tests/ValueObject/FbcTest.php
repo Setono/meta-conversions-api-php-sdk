@@ -139,4 +139,38 @@ final class FbcTest extends TestCase
         self::assertSame('AQECAQMB', $fbc->withClickId('Other')->getAppendix());
         self::assertSame('fb.2.1657051589577.IwAR1a-b_c.AQECAQMB', $fbc->withSubdomainIndex(2)->value());
     }
+
+    /**
+     * @test
+     */
+    public function it_accepts_a_subdomain_index_above_two(): void
+    {
+        $fbc = Fbc::fromString('fb.3.1657051589577.ClickId');
+
+        self::assertSame(3, $fbc->getSubdomainIndex());
+        self::assertSame('fb.3.1657051589577.ClickId', $fbc->value());
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider invalidSubdomainIndexes
+     */
+    public function it_rejects_an_invalid_subdomain_index(string $subdomainIndex): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Fbc::fromString(sprintf('fb.%s.1657051589577.ClickId', $subdomainIndex));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidSubdomainIndexes(): \Generator
+    {
+        yield 'a leading zero, which could not be written back unchanged' => ['01'];
+        yield 'negative' => ['-1'];
+        yield 'more digits than a domain can have dots' => ['1000'];
+        yield 'not a number' => ['x'];
+    }
 }
