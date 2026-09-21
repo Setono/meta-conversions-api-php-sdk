@@ -11,7 +11,7 @@ use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
  */
 final class Fbp extends Fb
 {
-    public int $randomNumber;
+    private int $randomNumber;
 
     public function __construct()
     {
