@@ -15,6 +15,8 @@ final class Pixel
      * 2. It's not necessarily the case that the access token is present when you create the event,
      *    but first available when you want to send the event, hence you populate it later
      * 3. There's the risk of having the access token being outputted in some user facing error message
+     *
+     * The client refuses to send an event to a pixel without an access token
      */
     public ?string $accessToken;
 

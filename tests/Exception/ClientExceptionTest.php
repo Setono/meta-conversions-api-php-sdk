@@ -45,6 +45,19 @@ final class ClientExceptionTest extends TestCase
     /**
      * @test
      */
+    public function it_is_created_from_pixels_without_an_access_token(): void
+    {
+        $exception = ClientException::missingAccessToken(['pixel_1', 'pixel_2']);
+
+        self::assertSame(
+            'The event was not sent to Meta/Facebook because these pixels have no access token: pixel_1, pixel_2. If the access tokens were removed with PreparedEvent::withoutAccessTokens(), add them back with PreparedEvent::withAccessTokens() before sending',
+            $exception->getMessage(),
+        );
+    }
+
+    /**
+     * @test
+     */
     public function it_is_created_from_an_error_response(): void
     {
         $json = '{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"fbtrace_id":"trace123"}}';

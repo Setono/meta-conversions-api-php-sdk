@@ -41,7 +41,7 @@ final class ClientTest extends TestCase
         $event = new Event(Event::EVENT_PURCHASE);
         $event->eventId = 'event_id';
         $event->eventTime = 1658743659123;
-        $event->pixels[] = new Pixel('pixel_id');
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
         $client->sendEvent($event);
 
         self::assertCount(1, $httpClient->requests);
@@ -49,7 +49,7 @@ final class ClientTest extends TestCase
         $request = $httpClient->requests[0];
         self::assertSame('POST', $request->getMethod());
         self::assertSame(sprintf('https://graph.facebook.com/v%s/pixel_id/events', ApiConfig::APIVersion), (string) $request->getUri());
-        self::assertSame('data=%5B%7B%22event_name%22%3A%22Purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D', (string) $request->getBody());
+        self::assertSame('access_token=access_token&data=%5B%7B%22event_name%22%3A%22Purchase%22%2C%22event_time%22%3A1658743659123%2C%22event_id%22%3A%22event_id%22%2C%22action_source%22%3A%22website%22%7D%5D', (string) $request->getBody());
     }
 
     /**
@@ -117,7 +117,7 @@ final class ClientTest extends TestCase
 
         try {
             $event = new Event(Event::EVENT_PURCHASE);
-            $event->pixels[] = new Pixel('pixel_id');
+            $event->pixels[] = new Pixel('pixel_id', 'access_token');
 
             (new Client())->sendEvent($event);
         } finally {
@@ -218,6 +218,85 @@ final class ClientTest extends TestCase
         self::assertCount(1, $preparedEventHttpClient->requests);
         self::assertSame((string) $eventHttpClient->requests[0]->getUri(), (string) $preparedEventHttpClient->requests[0]->getUri());
         self::assertSame((string) $eventHttpClient->requests[0]->getBody(), (string) $preparedEventHttpClient->requests[0]->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_a_pixel_has_no_access_token(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id');
+
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a ClientException');
+        } catch (ClientException $e) {
+            self::assertStringContainsString('these pixels have no access token: pixel_id.', $e->getMessage());
+        }
+
+        self::assertCount(0, $httpClient->requests);
+    }
+
+    /**
+     * @test
+     */
+    public function it_sends_nothing_when_any_of_the_pixels_has_no_access_token(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $preparedEvent = new PreparedEvent(
+            Event::EVENT_PURCHASE,
+            'event_id',
+            ['event_name' => 'Purchase'],
+            [new Pixel('pixel_1', 'token_1'), new Pixel('pixel_2'), new Pixel('pixel_3', 'token_3'), new Pixel('pixel_4')],
+        );
+
+        try {
+            // pixel_2 and pixel_4 were not in the list, so they are still without an access token
+            $client->sendPreparedEvent($preparedEvent->withoutAccessTokens()->withAccessTokens(['pixel_1' => 'token_1', 'pixel_3' => 'token_3']));
+            self::fail('Expected a ClientException');
+        } catch (ClientException $e) {
+            self::assertStringContainsString('these pixels have no access token: pixel_2, pixel_4.', $e->getMessage());
+        }
+
+        // not even pixel_1, which comes first and has an access token, received the event
+        self::assertCount(0, $httpClient->requests);
+    }
+
+    /**
+     * @test
+     */
+    public function it_treats_an_empty_access_token_as_missing(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        // the constructor turns an empty string into null, but the property is public
+        $pixel = new Pixel('pixel_id', 'access_token');
+        $pixel->accessToken = '';
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = $pixel;
+
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a ClientException');
+        } catch (ClientException $e) {
+            self::assertStringContainsString('pixel_id', $e->getMessage());
+        }
+
+        self::assertCount(0, $httpClient->requests);
     }
 
     /**

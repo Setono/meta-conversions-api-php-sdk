@@ -129,8 +129,9 @@ $event->testEventCode = 'TEST12345';
 
 ### Error handling
 
-`sendEvent()` and `sendPreparedEvent()` throw a `ClientException` if Meta returns a non-2xx response. The message contains Meta's error message,
-code, trace id and the raw response (including the user-facing explanation when Meta provides one):
+`sendEvent()` and `sendPreparedEvent()` throw a `ClientException` if Meta returns a non-2xx response. The message
+contains Meta's error message, code, trace id and the raw response (including the user-facing explanation when Meta
+provides one). They also throw it, without making any request, if one of the pixels has no access token:
 
 ```php
 use Setono\MetaConversionsApi\Exception\ClientException;
@@ -163,6 +164,9 @@ $client->sendPreparedEvent($preparedEvent->withAccessTokens([
 `withoutAccessTokens()` keeps the access tokens out of the queue and of any failure storage behind it, and
 `withAccessTokens()` takes the tokens indexed by pixel id and leaves pixels that are not in the list as they are. Both
 return a new instance. If your queue is trusted with the access tokens, you can skip both calls.
+
+If a pixel still has no access token when you send, the client throws a `ClientException` that names the pixel, before
+any request is made. The event is therefore never delivered to only some of its pixels.
 
 ## Browser-side tracking with deduplication
 
