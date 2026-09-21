@@ -198,7 +198,7 @@ To get the best match quality Meta recommends sending events both server-side (t
 the same `eventId` so they are deduplicated. `FbqGenerator` produces the matching JavaScript:
 
 ```php
-use Setono\MetaConversionsApi\Event\Parameters;
+use Setono\MetaConversionsApi\Event\PayloadContext;
 use Setono\MetaConversionsApi\Generator\FbqGenerator;
 
 $generator = new FbqGenerator();
@@ -206,7 +206,7 @@ $generator = new FbqGenerator();
 // In your <head>: initialise the pixel(s) and send a PageView
 echo $generator->generateInit(
     $event->pixels,
-    $event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER),
+    $event->userData->getPayload(PayloadContext::Browser),
 );
 
 // Where the conversion happens: fire the same event in the browser.

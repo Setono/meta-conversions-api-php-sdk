@@ -44,7 +44,7 @@ final class Custom extends Parameters
      */
     public array $customProperties = [];
 
-    protected function getMapping(string $context): array
+    protected function getMapping(PayloadContext $context): array
     {
         return array_merge($this->customProperties, [
             'content_category' => $this->contentCategory,

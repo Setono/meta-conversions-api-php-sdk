@@ -41,7 +41,7 @@ There is no `master`. **`2.x`** is the default branch and the next major: BC bre
 
 The core abstraction is the serialization pipeline in `src/Event/Parameters.php`. Everything sent to Meta flows through it.
 
-**`Parameters` (abstract base)** — each subclass implements `getMapping(string $context): array`, returning Meta's snake_case field names mapped to the object's (camelCase) PHP property values. `getPayload()` runs that mapping through `normalize()`, which recursively:
+**`Parameters` (abstract base)** — each subclass implements `getMapping(PayloadContext $context): array`, returning Meta's snake_case field names mapped to the object's (camelCase) PHP property values. `getPayload()` runs that mapping through `normalize()`, which recursively:
 1. formats `DateTimeInterface` as `Ymd` and casts `Stringable` to string,
 2. normalizes fields listed in `getNormalizedFields()` via `FacebookAds\Object\ServerSide\Normalizer`,
 3. hashes fields listed in `getHashedFields()` via `FacebookAds\Object\ServerSide\Util::hash` (SHA-256 — this is how PII like email/phone is protected),
@@ -50,7 +50,7 @@ The core abstraction is the serialization pipeline in `src/Event/Parameters.php`
 
 So to add a field: add the public property, map it in `getMapping()`, and register it in `getNormalizedFields()`/`getHashedFields()` if Meta requires it. The lists of which fields normalize/hash mirror the corresponding `FacebookAds\Object\ServerSide\*` classes (see the `@see` annotations) — keep them in sync with that SDK.
 
-**Two payload contexts** (`PAYLOAD_CONTEXT_SERVER` vs `PAYLOAD_CONTEXT_BROWSER`). The same objects serialize differently depending on whether they're sent server-side via the Conversions API or rendered into a client-side `fbq()` call. `User::getMapping()` strips server-only fields (IP, user agent, fbc, fbp) in browser context.
+**Two payload contexts** (the `PayloadContext` enum: `Server`, the default, and `Browser`). The same objects serialize differently depending on whether they're sent server-side via the Conversions API or rendered into a client-side `fbq()` call. `getPayload()` passes the context on to nested `Parameters`, so the browser payload of an `Event` never contains the server-only fields of its `User`. `User::getMapping()` strips server-only fields (IP, user agent, fbc, fbp) in browser context.
 
 **`Parameters` subclasses:** `Event` (the aggregate root — holds `User $userData`, `Custom $customData`, a list of `Pixel`, plus `metadata` for app-internal use that is never sent), `User` (customer matching data), `Custom` (event-specific data like value/currency/contents), `Content` (a single item in `Custom::$contents`). `Event` auto-generates `eventId` (random, for [deduplication](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-id)) and `eventTime` in its constructor. `Event` is intentionally **not** `final` so consumers can subclass it into domain-specific events; the other data objects are `final`.
 

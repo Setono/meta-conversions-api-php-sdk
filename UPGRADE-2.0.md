@@ -40,6 +40,27 @@ What to change:
 - `ErrorResponse` is no longer `@internal`. Its properties are now readonly, and `ErrorResponse::fromJson()` throws
   `InvalidArgumentException` instead of `ClientException`.
 
+## The payload context is an enum
+
+`Parameters::PAYLOAD_CONTEXT_SERVER` and `Parameters::PAYLOAD_CONTEXT_BROWSER` are replaced by the
+`Setono\MetaConversionsApi\Event\PayloadContext` enum. With a string, a typo silently gave you the server payload, IP
+address, user agent, `fbc` and `fbp` included, which is exactly what must not be printed into a page.
+
+```php
+// 1.x
+$event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER);
+
+// 2.0
+$event->userData->getPayload(PayloadContext::Browser);
+```
+
+If you subclass `Event` and override `getMapping()`, change its signature from `getMapping(string $context)` to
+`getMapping(PayloadContext $context)`. A subclass that only overrides the constructor is not affected.
+
+The context is now also passed on to nested objects. In 1.x, `$event->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER)`
+still serialized the user data in the server context. `FbqGenerator` was not affected, since it asks the user data and
+the custom data directly.
+
 ## `FbqGenerator::generateTrack()` no longer throws a `\JsonException`
 
 When the custom data cannot be encoded as JSON, it now logs an error and returns an empty string, which is what

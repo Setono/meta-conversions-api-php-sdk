@@ -275,4 +275,30 @@ final class EventTest extends TestCase
         $event->pixels[0]->accessToken = 'changed on the event';
         self::assertSame('changed on the prepared event', $preparedPixel->accessToken);
     }
+
+    /**
+     * @test
+     */
+    public function it_passes_the_context_on_to_the_user_data(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->userData->email[] = 'johndoe@example.com';
+        $event->userData->clientIpAddress = '192.168.0.1';
+        $event->userData->clientUserAgent = 'Chrome';
+        $event->userData->fbc = 'fb.1.1657051589577.ClickId';
+        $event->userData->fbp = 'fb.1.1656874832584.1088522659';
+
+        $hashedEmail = ['55e79200c1635b37ad31a378c39feb12f120f116625093a19bc32fff15041149'];
+
+        // the fields that are only meant for the server must not end up in a page
+        self::assertSame(['em' => $hashedEmail], $event->getPayload(PayloadContext::Browser)['user_data']);
+
+        self::assertSame([
+            'em' => $hashedEmail,
+            'client_ip_address' => '192.168.0.1',
+            'client_user_agent' => 'Chrome',
+            'fbc' => 'fb.1.1657051589577.ClickId',
+            'fbp' => 'fb.1.1656874832584.1088522659',
+        ], $event->getPayload()['user_data']);
+    }
 }
