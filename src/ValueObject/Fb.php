@@ -60,10 +60,7 @@ abstract class Fb
         return $this->subdomainIndex;
     }
 
-    /**
-     * @return static
-     */
-    public function withSubdomainIndex(int $subdomainIndex): self
+    public function withSubdomainIndex(int $subdomainIndex): static
     {
         Assert::greaterThanEq($subdomainIndex, 0);
 
@@ -78,18 +75,12 @@ abstract class Fb
         return $this->creationTime;
     }
 
-    /**
-     * @param int|\DateTimeInterface $creationTime
-     *
-     * @return static
-     */
-    public function withCreationTime($creationTime): self
+    public function withCreationTime(int|\DateTimeInterface $creationTime): static
     {
         if ($creationTime instanceof \DateTimeInterface) {
             $creationTime = (int) $creationTime->format('Uv');
         }
 
-        Assert::integer($creationTime);
         Assert::greaterThanEq($creationTime, 1_075_590_000_000); // Facebooks founding date xD
         Assert::lessThanEq($creationTime, (time() + 1) * 1000);
 
@@ -112,10 +103,7 @@ abstract class Fb
         return $this->appendix;
     }
 
-    /**
-     * @return static
-     */
-    public function withAppendix(?string $appendix): self
+    public function withAppendix(?string $appendix): static
     {
         if (null !== $appendix) {
             Assert::regex($appendix, self::REGEXP_APPENDIX);

@@ -56,11 +56,9 @@ abstract class Parameters
     }
 
     /**
-     * @param mixed $data
-     *
      * @return array<array-key, mixed>|string|float|int|bool|null
      */
-    private static function normalize($data, PayloadContext $context, ?string $field = null)
+    private static function normalize(mixed $data, PayloadContext $context, ?string $field = null): array|string|float|int|bool|null
     {
         if (null === $data) {
             return null;
@@ -121,7 +119,7 @@ abstract class Parameters
      */
     private static function filterEmptyValues(array $data): array
     {
-        return array_filter($data, static function ($value): bool {
+        return array_filter($data, static function (mixed $value): bool {
             return !(null === $value || '' === $value || [] === $value);
         });
     }

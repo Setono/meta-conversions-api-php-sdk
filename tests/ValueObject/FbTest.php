@@ -127,16 +127,6 @@ final class FbTest extends TestCase
     /**
      * @test
      */
-    public function it_rejects_a_creation_time_that_is_neither_an_integer_nor_a_datetime(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-
-        (new Fbp())->withCreationTime('1656874832584'); // @phpstan-ignore argument.type
-    }
-
-    /**
-     * @test
-     */
     public function it_has_no_appendix_by_default(): void
     {
         $fb = new Fbp();

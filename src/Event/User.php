@@ -46,11 +46,9 @@ final class User extends Parameters
 
     public ?string $clientUserAgent = null;
 
-    /** @var string|Fbc|null */
-    public $fbc;
+    public Fbc|string|null $fbc = null;
 
-    /** @var string|Fbp|null */
-    public $fbp;
+    public Fbp|string|null $fbp = null;
 
     public ?string $subscriptionId = null;
 

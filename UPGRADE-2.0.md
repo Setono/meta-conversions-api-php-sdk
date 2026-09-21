@@ -61,6 +61,19 @@ The context is now also passed on to nested objects. In 1.x, `$event->getPayload
 still serialized the user data in the server context. `FbqGenerator` was not affected, since it asks the user data and
 the custom data directly.
 
+## Stricter types on `User`, `Fb` and `Fbp`
+
+- **`Fbp::$randomNumber` is private.** It was the only public, mutable property on the otherwise immutable cookie value
+  objects. Use `getRandomNumber()` and `withRandomNumber()`.
+- **`User::$fbc` and `User::$fbp` are natively typed**, as `Fbc|string|null` and `Fbp|string|null`. They were untyped, so
+  anything could be assigned. Assigning something else now throws a `\TypeError`.
+- **`Fb::withCreationTime()` takes `int|\DateTimeInterface` natively.** Passing anything else throws a `\TypeError`. It
+  used to throw an `InvalidArgumentException`.
+- `withSubdomainIndex()`, `withCreationTime()` and `withAppendix()` declare `static` as their return type. They already
+  returned the concrete class; this only matters if you extend `Fb` yourself and override them.
+
+A `\TypeError` is PHP's own error for a programming mistake and does not implement `ExceptionInterface`.
+
 ## `FbqGenerator::generateTrack()` no longer throws a `\JsonException`
 
 When the custom data cannot be encoded as JSON, it now logs an error and returns an empty string, which is what
