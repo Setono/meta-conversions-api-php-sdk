@@ -7,7 +7,7 @@
 [![Mutation testing][ico-infection]][link-infection]
 
 > [!NOTE]
-> This is the documentation for **2.x**, which is in development. The stable release lives on the
+> This is the documentation for **2.x**, which is in beta. The stable release lives on the
 > [`1.x` branch](https://github.com/Setono/meta-conversions-api-php-sdk/tree/1.x). If you are upgrading, see
 > [UPGRADE-2.0.md](UPGRADE-2.0.md).
 
@@ -37,8 +37,8 @@ way is to install it together with an implementation:
 composer require setono/meta-conversions-api-php-sdk kriswallsmith/buzz nyholm/psr7
 ```
 
-2.0 is in pre-release. Until it is stable, ask for it explicitly, e.g.
-`composer require setono/meta-conversions-api-php-sdk:^2.0@alpha`.
+2.0 is in beta. Until it is stable, ask for it explicitly, e.g.
+`composer require setono/meta-conversions-api-php-sdk:^2.0@beta`.
 
 `symfony/http-client` works just as well if you prefer it:
 
