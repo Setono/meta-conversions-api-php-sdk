@@ -227,7 +227,7 @@ final class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_when_a_pixel_has_no_access_token(): void
+    public function it_throws_when_none_of_the_pixels_has_an_access_token(): void
     {
         $httpClient = new TestHttpClient();
 
@@ -235,13 +235,15 @@ final class ClientTest extends TestCase
         $client->setHttpClient($httpClient);
 
         $event = new Event(Event::EVENT_PURCHASE);
-        $event->pixels[] = new Pixel('pixel_id');
+        $event->pixels[] = new Pixel('pixel_1', 'token_1');
+        $event->pixels[] = new Pixel('pixel_2', 'token_2');
 
         try {
-            $client->sendEvent($event);
+            // withAccessTokens() was forgotten
+            $client->sendPreparedEvent($event->prepare()->withoutAccessTokens());
             self::fail('Expected an InvalidArgumentException');
         } catch (InvalidArgumentException $e) {
-            self::assertStringContainsString('these pixels have no access token: pixel_id.', $e->getMessage());
+            self::assertStringContainsString('none of its pixels has an access token: pixel_1, pixel_2.', $e->getMessage());
         }
 
         self::assertCount(0, $httpClient->requests);
@@ -250,30 +252,55 @@ final class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_sends_nothing_when_any_of_the_pixels_has_no_access_token(): void
+    public function it_skips_the_pixels_without_an_access_token_and_sends_to_the_others(): void
     {
         $httpClient = new TestHttpClient();
+        $logger = new TestLogger();
 
         $client = new Client();
         $client->setHttpClient($httpClient);
+        $client->setLogger($logger);
+
+        // the constructor turns an empty string into null, but the property is public
+        $pixelWithAnEmptyAccessToken = new Pixel('pixel_4', 'token_4');
+        $pixelWithAnEmptyAccessToken->accessToken = '';
 
         $preparedEvent = new PreparedEvent(
             Event::EVENT_PURCHASE,
             'event_id',
             ['event_name' => 'Purchase'],
-            [new Pixel('pixel_1', 'token_1'), new Pixel('pixel_2'), new Pixel('pixel_3', 'token_3'), new Pixel('pixel_4')],
+            // pixel_2 is only used in the browser
+            [new Pixel('pixel_1', 'token_1'), new Pixel('pixel_2'), new Pixel('pixel_3', 'token_3'), $pixelWithAnEmptyAccessToken],
         );
 
-        try {
-            // pixel_2 and pixel_4 were not in the list, so they are still without an access token
-            $client->sendPreparedEvent($preparedEvent->withoutAccessTokens()->withAccessTokens(['pixel_1' => 'token_1', 'pixel_3' => 'token_3']));
-            self::fail('Expected an InvalidArgumentException');
-        } catch (InvalidArgumentException $e) {
-            self::assertStringContainsString('these pixels have no access token: pixel_2, pixel_4.', $e->getMessage());
-        }
+        $client->sendPreparedEvent($preparedEvent);
 
-        // not even pixel_1, which comes first and has an access token, received the event
-        self::assertCount(0, $httpClient->requests);
+        self::assertCount(2, $httpClient->requests);
+        [$first, $second] = $httpClient->requests;
+        self::assertSame(sprintf('https://graph.facebook.com/v%s/pixel_1/events', ApiConfig::APIVersion), (string) $first->getUri());
+        self::assertStringContainsString('access_token=token_1', (string) $first->getBody());
+        self::assertSame(sprintf('https://graph.facebook.com/v%s/pixel_3/events', ApiConfig::APIVersion), (string) $second->getUri());
+        self::assertStringContainsString('access_token=token_3', (string) $second->getBody());
+
+        self::assertSame(['The event was not sent to these pixels because they have no access token: pixel_2, pixel_4'], $logger->messages);
+    }
+
+    /**
+     * @test
+     */
+    public function it_logs_nothing_when_all_pixels_have_an_access_token(): void
+    {
+        $logger = new TestLogger();
+
+        $client = new Client();
+        $client->setHttpClient(new TestHttpClient());
+        $client->setLogger($logger);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+        $client->sendEvent($event);
+
+        self::assertSame([], $logger->messages);
     }
 
     /**

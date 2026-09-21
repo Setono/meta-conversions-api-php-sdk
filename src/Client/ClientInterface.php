@@ -14,7 +14,7 @@ use Setono\MetaConversionsApi\Exception\ExceptionInterface;
 interface ClientInterface
 {
     /**
-     * @throws ExceptionInterface if the event's data is invalid, a pixel has no access token, or the request failed in any way
+     * @throws ExceptionInterface if the event's data is invalid, none of the pixels has an access token, or the request failed in any way
      */
     public function sendEvent(Event $event): void;
 
@@ -22,7 +22,7 @@ interface ClientInterface
      * Sends an event that was prepared earlier with Event::prepare(). Use this when the personal data is hashed
      * at capture time and the event is sent later, for instance through a queue
      *
-     * @throws ExceptionInterface if a pixel has no access token, the payload cannot be encoded, or the request failed in any way
+     * @throws ExceptionInterface if none of the pixels has an access token, the payload cannot be encoded, or the request failed in any way
      */
     public function sendPreparedEvent(PreparedEvent $preparedEvent): void;
 }
