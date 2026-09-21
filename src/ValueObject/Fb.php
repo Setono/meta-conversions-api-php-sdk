@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\ValueObject;
 
-use Webmozart\Assert\Assert;
+use Setono\MetaConversionsApi\Assert;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 abstract class Fb
 {
@@ -43,7 +44,7 @@ abstract class Fb
     }
 
     /**
-     * @throws \InvalidArgumentException if the $value is not the correct format
+     * @throws InvalidArgumentException if the $value is not the correct format
      */
     abstract public static function fromString(string $value): self;
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Client;
 
 use PHPUnit\Framework\TestCase;
-use Setono\MetaConversionsApi\Exception\ClientException;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 /**
  * @covers \Setono\MetaConversionsApi\Client\ErrorResponse
@@ -55,10 +55,20 @@ final class ErrorResponseTest extends TestCase
     /**
      * @test
      */
+    public function it_captures_a_transient_error(): void
+    {
+        $errorResponse = ErrorResponse::fromJson('{"error":{"message":"Service temporarily unavailable","type":"OAuthException","code":2,"is_transient":true,"fbtrace_id":"trace123"}}');
+
+        self::assertTrue($errorResponse->transient);
+    }
+
+    /**
+     * @test
+     */
     public function it_throws_when_the_response_is_not_valid_json(): void
     {
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('The response from Meta/Facebook was not valid JSON');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The response is not valid JSON');
 
         ErrorResponse::fromJson('this is not json');
     }
@@ -70,7 +80,7 @@ final class ErrorResponseTest extends TestCase
      */
     public function it_throws_when_the_response_does_not_have_the_expected_format(string $json): void
     {
-        $this->expectException(ClientException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Expected a JSON response like');
 
         ErrorResponse::fromJson($json);

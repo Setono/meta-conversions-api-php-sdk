@@ -9,6 +9,7 @@ use Http\Discovery\Psr18ClientDiscovery;
 use Http\Discovery\Strategy\DiscoveryStrategy;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface as HttpClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -19,7 +20,10 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Setono\MetaConversionsApi\Event\Event;
 use Setono\MetaConversionsApi\Event\PreparedEvent;
-use Setono\MetaConversionsApi\Exception\ClientException;
+use Setono\MetaConversionsApi\Exception\ExceptionInterface;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
+use Setono\MetaConversionsApi\Exception\ResponseException;
+use Setono\MetaConversionsApi\Exception\TransportException;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 use Setono\MetaConversionsApi\TestLogger;
 
@@ -235,8 +239,8 @@ final class ClientTest extends TestCase
 
         try {
             $client->sendEvent($event);
-            self::fail('Expected a ClientException');
-        } catch (ClientException $e) {
+            self::fail('Expected an InvalidArgumentException');
+        } catch (InvalidArgumentException $e) {
             self::assertStringContainsString('these pixels have no access token: pixel_id.', $e->getMessage());
         }
 
@@ -263,8 +267,8 @@ final class ClientTest extends TestCase
         try {
             // pixel_2 and pixel_4 were not in the list, so they are still without an access token
             $client->sendPreparedEvent($preparedEvent->withoutAccessTokens()->withAccessTokens(['pixel_1' => 'token_1', 'pixel_3' => 'token_3']));
-            self::fail('Expected a ClientException');
-        } catch (ClientException $e) {
+            self::fail('Expected an InvalidArgumentException');
+        } catch (InvalidArgumentException $e) {
             self::assertStringContainsString('these pixels have no access token: pixel_2, pixel_4.', $e->getMessage());
         }
 
@@ -291,8 +295,8 @@ final class ClientTest extends TestCase
 
         try {
             $client->sendEvent($event);
-            self::fail('Expected a ClientException');
-        } catch (ClientException $e) {
+            self::fail('Expected an InvalidArgumentException');
+        } catch (InvalidArgumentException $e) {
             self::assertStringContainsString('pixel_id', $e->getMessage());
         }
 
@@ -320,16 +324,13 @@ final class ClientTest extends TestCase
     /**
      * @test
      */
-    public function it_throws_an_exception_when_the_response_is_not_successful(): void
+    public function it_throws_a_response_exception_with_the_error_meta_reported(): void
     {
+        $json = '{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"error_subcode":2804050,"is_transient":false,"fbtrace_id":"trace123"}}';
         $responseFactory = new Psr17Factory();
 
         $httpClient = new TestHttpClient();
-        $httpClient->response = $responseFactory
-            ->createResponse(400)
-            ->withBody($responseFactory->createStream(
-                '{"error":{"message":"Invalid parameter","type":"OAuthException","code":100,"fbtrace_id":"trace123"}}',
-            ));
+        $httpClient->response = $responseFactory->createResponse(400)->withBody($responseFactory->createStream($json));
 
         $client = new Client();
         $client->setHttpClient($httpClient);
@@ -337,10 +338,127 @@ final class ClientTest extends TestCase
         $event = new Event(Event::EVENT_PURCHASE);
         $event->pixels[] = new Pixel('pixel_id', 'access_token');
 
-        $this->expectException(ClientException::class);
-        $this->expectExceptionMessage('Invalid parameter');
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a ResponseException');
+        } catch (ExceptionInterface $e) {
+            self::assertInstanceOf(ResponseException::class, $e);
+            self::assertSame(400, $e->statusCode);
+            self::assertSame($json, $e->body);
+            self::assertNotNull($e->errorResponse);
+            self::assertSame('Invalid parameter', $e->errorResponse->message);
+            self::assertSame(100, $e->errorResponse->code);
+            self::assertSame(2804050, $e->errorResponse->subcode);
+            self::assertFalse($e->errorResponse->transient);
+            self::assertSame('trace123', $e->errorResponse->traceId);
+            self::assertNull($e->getPrevious());
+        }
+    }
 
-        $client->sendEvent($event);
+    /**
+     * @test
+     */
+    public function it_throws_a_response_exception_when_the_body_is_not_in_metas_error_format(): void
+    {
+        $html = '<html><body>502 Bad Gateway</body></html>';
+        $responseFactory = new Psr17Factory();
+
+        $httpClient = new TestHttpClient();
+        $httpClient->response = $responseFactory->createResponse(502)->withBody($responseFactory->createStream($html));
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a ResponseException');
+        } catch (ResponseException $e) {
+            self::assertSame(502, $e->statusCode);
+            self::assertSame($html, $e->body);
+            self::assertNull($e->errorResponse);
+            self::assertInstanceOf(InvalidArgumentException::class, $e->getPrevious());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_stops_at_the_first_pixel_that_gets_an_unsuccessful_response(): void
+    {
+        $responseFactory = new Psr17Factory();
+
+        $httpClient = new TestHttpClient();
+        $httpClient->response = $responseFactory->createResponse(500);
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_1', 'token_1');
+        $event->pixels[] = new Pixel('pixel_2', 'token_2');
+
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a ResponseException');
+        } catch (ResponseException $e) {
+            self::assertSame(500, $e->statusCode);
+        }
+
+        self::assertCount(1, $httpClient->requests);
+    }
+
+    /**
+     * @test
+     */
+    public function it_wraps_a_failure_of_the_http_client_in_a_transport_exception(): void
+    {
+        $httpClientException = new TestClientException('Connection timed out');
+
+        $httpClient = new TestHttpClient();
+        $httpClient->exception = $httpClientException;
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+
+        try {
+            $client->sendEvent($event);
+            self::fail('Expected a TransportException');
+        } catch (ExceptionInterface $e) {
+            self::assertInstanceOf(TransportException::class, $e);
+            self::assertSame('The request to Meta/Facebook failed: Connection timed out', $e->getMessage());
+            self::assertSame($httpClientException, $e->getPrevious());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_throws_when_the_payload_cannot_be_encoded(): void
+    {
+        $httpClient = new TestHttpClient();
+
+        $client = new Client();
+        $client->setHttpClient($httpClient);
+
+        // malformed UTF-8 cannot be JSON encoded
+        $preparedEvent = new PreparedEvent(Event::EVENT_PURCHASE, 'event_id', ['custom' => "\xB1\x31"], [new Pixel('pixel_id', 'access_token')]);
+
+        try {
+            $client->sendPreparedEvent($preparedEvent);
+            self::fail('Expected an InvalidArgumentException');
+        } catch (ExceptionInterface $e) {
+            self::assertInstanceOf(InvalidArgumentException::class, $e);
+            self::assertStringContainsString('cannot be encoded as JSON', $e->getMessage());
+            self::assertInstanceOf(\JsonException::class, $e->getPrevious());
+        }
+
+        self::assertCount(0, $httpClient->requests);
     }
 
     /**
@@ -371,6 +489,8 @@ final class TestHttpClient implements HttpClientInterface
 
     public ?ResponseInterface $response = null;
 
+    public ?ClientExceptionInterface $exception = null;
+
     public function __construct()
     {
         $this->responseFactory = new Psr17Factory();
@@ -380,8 +500,16 @@ final class TestHttpClient implements HttpClientInterface
     {
         $this->requests[] = $request;
 
+        if (null !== $this->exception) {
+            throw $this->exception;
+        }
+
         return $this->response ?? $this->responseFactory->createResponse();
     }
+}
+
+final class TestClientException extends \RuntimeException implements ClientExceptionInterface
+{
 }
 
 final class TestRequestFactory implements RequestFactoryInterface

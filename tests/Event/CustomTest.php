@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\Event;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 /**
  * @covers \Setono\MetaConversionsApi\Event\Custom
@@ -76,7 +77,7 @@ final class CustomTest extends TestCase
         $custom = new Custom();
         $custom->customProperties['unsupported'] = new \stdClass();
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         $custom->getPayload();
     }

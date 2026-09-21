@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\ValueObject;
 
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
+
 /**
  * See https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/fbp-and-fbc#fbc
  */
@@ -30,7 +32,7 @@ final class Fbc extends Fb
     public static function fromString(string $value): self
     {
         if (preg_match(self::REGEXP_FBC, $value, $matches) !== 1) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'The value "%s" didn\'t match the expected pattern for fbc: "%s"',
                 $value,
                 self::REGEXP_FBC,

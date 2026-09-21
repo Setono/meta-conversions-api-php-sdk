@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Setono\MetaConversionsApi\Client;
 
-use Setono\MetaConversionsApi\Exception\ClientException;
-use Webmozart\Assert\Assert;
+use Setono\MetaConversionsApi\Assert;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 /**
  * Represents the error envelope Meta/Facebook returns when a request fails.
@@ -21,49 +21,38 @@ use Webmozart\Assert\Assert;
  *
  * Those optional fields are captured when present.
  *
- * @internal
+ * @see \Setono\MetaConversionsApi\Exception\ResponseException::$errorResponse
  */
 final class ErrorResponse
 {
+    private const EXPECTED_FORMAT = '{"error":{"message":"string","type":"string","code":int,"fbtrace_id":"string"}}';
+
     /**
-     * This is the raw json response
+     * @param string $json the raw json response
+     * @param bool|null $transient true if Meta considers the error temporary, i.e. retrying may succeed. Null if Meta did not say
      */
-    public string $json;
-
-    public string $message;
-
-    public string $type;
-
-    public int $code;
-
-    public string $traceId;
-
-    public ?int $subcode = null;
-
-    public ?bool $transient = null;
-
-    public ?string $userTitle = null;
-
-    public ?string $userMessage = null;
-
-    private function __construct(string $json, string $message, string $type, int $code, string $traceId)
-    {
-        $this->json = $json;
-        $this->message = $message;
-        $this->type = $type;
-        $this->code = $code;
-        $this->traceId = $traceId;
+    private function __construct(
+        public readonly string $json,
+        public readonly string $message,
+        public readonly string $type,
+        public readonly int $code,
+        public readonly string $traceId,
+        public readonly ?int $subcode,
+        public readonly ?bool $transient,
+        public readonly ?string $userTitle,
+        public readonly ?string $userMessage,
+    ) {
     }
 
     /**
-     * @throws ClientException if the JSON / response is invalid
+     * @throws InvalidArgumentException if the JSON is invalid or is not in Meta's error format
      */
     public static function fromJson(string $json): self
     {
         try {
             $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            throw ClientException::invalidJson($e, $json);
+            throw new InvalidArgumentException(sprintf('The response is not valid JSON (%s): %s', $e->getMessage(), $json), previous: $e);
         }
 
         try {
@@ -74,7 +63,7 @@ final class ErrorResponse
             Assert::isArray($error);
 
             if (!isset($error['message'], $error['type'], $error['code'], $error['fbtrace_id'])) {
-                throw ClientException::invalidResponseFormat($json);
+                throw new InvalidArgumentException('One of the required fields is missing');
             }
 
             ['message' => $message, 'type' => $type, 'code' => $code, 'fbtrace_id' => $traceId] = $error;
@@ -95,16 +84,10 @@ final class ErrorResponse
 
             $userMessage = $error['error_user_msg'] ?? null;
             Assert::nullOrString($userMessage);
-        } catch (\InvalidArgumentException $e) {
-            throw ClientException::invalidResponseFormat($json);
+        } catch (InvalidArgumentException $e) {
+            throw new InvalidArgumentException(sprintf('Expected a JSON response like %s, but got %s', self::EXPECTED_FORMAT, $json), previous: $e);
         }
 
-        $self = new self($json, $message, $type, $code, $traceId);
-        $self->subcode = $subcode;
-        $self->transient = $transient;
-        $self->userTitle = $userTitle;
-        $self->userMessage = $userMessage;
-
-        return $self;
+        return new self($json, $message, $type, $code, $traceId, $subcode, $transient, $userTitle, $userMessage);
     }
 }

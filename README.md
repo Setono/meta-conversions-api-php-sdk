@@ -129,19 +129,41 @@ $event->testEventCode = 'TEST12345';
 
 ### Error handling
 
-`sendEvent()` and `sendPreparedEvent()` throw a `ClientException` if Meta returns a non-2xx response. The message
-contains Meta's error message, code, trace id and the raw response (including the user-facing explanation when Meta
-provides one). They also throw it, without making any request, if one of the pixels has no access token:
+Everything the SDK throws implements `Setono\MetaConversionsApi\Exception\ExceptionInterface`, so you can catch it all in
+one place. There are three concrete exceptions, one for each thing you can do about a failure:
+
+| Exception | Thrown when | What to do |
+|---|---|---|
+| `InvalidArgumentException` | The SDK is given something it cannot work with: a pixel without an access token, event data Meta does not accept, a payload that cannot be encoded, a cookie value in the wrong format. Always thrown before any request is made | Fix the input. Retrying will not help |
+| `TransportException` | The request never got a response, e.g. a network error or a timeout. The exception from your HTTP client is the previous exception | Retry |
+| `ResponseException` | Meta, or a proxy in between, answered with anything but a 200 | Decide from `$e->statusCode` and `$e->errorResponse` |
+
+`ResponseException::$errorResponse` is the error Meta reported, with its `message`, `code`, `subcode`, `type`, `traceId`,
+the `transient` flag and the user-facing texts. It is null when the body is not in Meta's error format, which typically
+means the response came from a proxy. The raw body is always available as `$e->body`.
 
 ```php
-use Setono\MetaConversionsApi\Exception\ClientException;
+use Setono\MetaConversionsApi\Exception\ExceptionInterface;
+use Setono\MetaConversionsApi\Exception\ResponseException;
+use Setono\MetaConversionsApi\Exception\TransportException;
 
 try {
     $client->sendEvent($event);
-} catch (ClientException $e) {
-    $logger->error('Could not send event to Meta', ['exception' => $e]);
+} catch (TransportException $e) {
+    // no response at all: try again later
+} catch (ResponseException $e) {
+    if ($e->statusCode >= 500 || true === $e->errorResponse?->transient) {
+        // try again later
+    }
+
+    $logger->error('Meta rejected the event', ['exception' => $e, 'trace_id' => $e->errorResponse?->traceId]);
+} catch (ExceptionInterface $e) {
+    $logger->error('Could not send the event to Meta', ['exception' => $e]);
 }
 ```
+
+`InvalidArgumentException` extends PHP's own `\InvalidArgumentException`, so a plain `catch (\InvalidArgumentException $e)`
+works too.
 
 ## Sending events later, e.g. through a queue
 
@@ -165,8 +187,8 @@ $client->sendPreparedEvent($preparedEvent->withAccessTokens([
 `withAccessTokens()` takes the tokens indexed by pixel id and leaves pixels that are not in the list as they are. Both
 return a new instance. If your queue is trusted with the access tokens, you can skip both calls.
 
-If a pixel still has no access token when you send, the client throws a `ClientException` that names the pixel, before
-any request is made. The event is therefore never delivered to only some of its pixels.
+If a pixel still has no access token when you send, the client throws an `InvalidArgumentException` that names the
+pixel, before any request is made. The event is therefore never delivered to only some of its pixels.
 
 ## Browser-side tracking with deduplication
 
@@ -191,7 +213,8 @@ echo $generator->generateTrack($event);
 ```
 
 Both methods wrap the output in a `<script>` tag by default; pass `false` as the last argument to get the raw
-JavaScript instead (e.g. to combine several calls into one tag).
+JavaScript instead (e.g. to combine several calls into one tag). Because their output goes straight into a page, they
+do not throw when the data cannot be encoded as JSON: they log an error and return an empty string.
 
 ## Custom events
 
@@ -216,6 +239,8 @@ use Setono\MetaConversionsApi\ValueObject\Fbp;
 $event->userData->fbc = Fbc::fromString($_COOKIE['_fbc']);
 $event->userData->fbp = Fbp::fromString($_COOKIE['_fbp']);
 ```
+
+`fromString()` throws an `InvalidArgumentException` if the value does not have the expected format.
 
 ## Using your own HTTP client
 

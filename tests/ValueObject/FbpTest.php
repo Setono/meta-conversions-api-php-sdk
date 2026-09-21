@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Setono\MetaConversionsApi\ValueObject;
 
 use PHPUnit\Framework\TestCase;
+use Setono\MetaConversionsApi\Exception\InvalidArgumentException;
 
 final class FbpTest extends TestCase
 {
@@ -50,7 +51,7 @@ final class FbpTest extends TestCase
      */
     public function it_handles_wrong_input(string $input): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Fbp::fromString($input);
     }
 
