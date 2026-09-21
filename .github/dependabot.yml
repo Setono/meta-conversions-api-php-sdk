@@ -9,7 +9,7 @@
 #   tests/ValueObject/ParamBuilderConformanceTest.php. A new major should be tested against as soon as it exists.
 #
 # No composer.lock is committed, so a PR is only opened when a release falls outside the allowed range, i.e. for a new
-# major. Releases inside the range are picked up by the weekly scheduled run of the build workflow instead. The other dependencies are left out on purpose: their ranges already float, and the dev tools are held on the
+# major. Releases inside the range produce no PR; the highest jobs install them the next time CI runs. The other dependencies are left out on purpose: their ranges already float, and the dev tools are held on the
 # majors that still support PHP 8.1.
 version: 2
 
