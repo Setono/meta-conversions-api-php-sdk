@@ -8,7 +8,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Setono\MetaConversionsApi\Event\Event;
-use Setono\MetaConversionsApi\Event\Parameters;
+use Setono\MetaConversionsApi\Event\PayloadContext;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 
 final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
@@ -58,7 +58,7 @@ final class FbqGenerator implements FbqGeneratorInterface, LoggerAwareInterface
     public function generateTrack(Event $event, bool $includeScriptTag = true): string
     {
         try {
-            $json = json_encode($event->customData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), \JSON_THROW_ON_ERROR);
+            $json = json_encode($event->customData->getPayload(PayloadContext::Browser), \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
             $this->logger->error($e->getMessage());
 

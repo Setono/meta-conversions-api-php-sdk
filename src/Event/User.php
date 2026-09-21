@@ -58,7 +58,7 @@ final class User extends Parameters
 
     public ?int $leadId = null;
 
-    protected function getMapping(string $context): array
+    protected function getMapping(PayloadContext $context): array
     {
         $mapping = [
             'em' => $this->email,
@@ -81,7 +81,7 @@ final class User extends Parameters
             'lead_id' => $this->leadId,
         ];
 
-        if (self::PAYLOAD_CONTEXT_BROWSER === $context) {
+        if (PayloadContext::Browser === $context) {
             unset(
                 $mapping['client_ip_address'],
                 $mapping['client_user_agent'],

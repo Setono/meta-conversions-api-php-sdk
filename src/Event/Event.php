@@ -180,7 +180,7 @@ class Event extends Parameters
         ];
     }
 
-    protected function getMapping(string $context): array
+    protected function getMapping(PayloadContext $context): array
     {
         return [
             'event_name' => $this->eventName,

@@ -26,7 +26,7 @@ final class Content extends Parameters
         $this->deliveryCategory = $deliveryCategory;
     }
 
-    protected function getMapping(string $context): array
+    protected function getMapping(PayloadContext $context): array
     {
         return [
             'id' => $this->id,

@@ -6,7 +6,7 @@ namespace Setono\MetaConversionsApi\Generator;
 
 use PHPUnit\Framework\TestCase;
 use Setono\MetaConversionsApi\Event\Event;
-use Setono\MetaConversionsApi\Event\Parameters;
+use Setono\MetaConversionsApi\Event\PayloadContext;
 use Setono\MetaConversionsApi\Pixel\Pixel;
 use Setono\MetaConversionsApi\TestLogger;
 
@@ -31,12 +31,12 @@ final class FbqGeneratorTest extends TestCase
         self::assertSame(<<<EXPECTED
 fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('track', 'PageView');
 EXPECTED
-            , $generator->generateInit($event->pixels, $event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER), true, false));
+            , $generator->generateInit($event->pixels, $event->userData->getPayload(PayloadContext::Browser), true, false));
 
         self::assertSame(<<<EXPECTED
 <script>fbq('init', '111', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('init', '222', {"db":["cccd631dbe89ae6c982a960f248fabab8a4ae7f899853a3ea5bceef8ca1d6585"]});fbq('track', 'PageView');</script>
 EXPECTED
-            , $generator->generateInit($event->pixels, $event->userData->getPayload(Parameters::PAYLOAD_CONTEXT_BROWSER)));
+            , $generator->generateInit($event->pixels, $event->userData->getPayload(PayloadContext::Browser)));
     }
 
     /**
