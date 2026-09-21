@@ -31,7 +31,7 @@ CI (`.github/workflows/build.yaml`) runs coding standards, dependency analysis, 
 
 ### Branches
 
-There is no `master`. **`1.x`** is the default branch and holds the released 1.x line: bug fixes and additive changes only, and the BC check must stay green — this is a public library. **`2.x`** is the next major: BC breaks are allowed there, but every one must be documented in `UPGRADE-2.0.md`. Because the BC check compares against the PR's base, it is expected to be red on `2.x` PRs that break BC; its output should match what `UPGRADE-2.0.md` lists. Always pass `--base` to `gh pr create`. `Closes #123` only auto-closes issues when merged into the default branch, so issues fixed on `2.x` have to be closed by hand.
+There is no `master`. **`2.x`** is the default branch and the next major: BC breaks are allowed there, but every one must be documented in `UPGRADE-2.0.md`. Because the BC check compares against the PR's base, it is expected to be red on `2.x` PRs that break BC; its output should match what `UPGRADE-2.0.md` lists. **`1.x`** holds the released 1.x line: bug fixes and additive changes only, and the BC check must stay green there — this is a public library. Always pass `--base` to `gh pr create`. `Closes #123` only auto-closes issues when merged into the default branch, so issues fixed on `1.x` have to be closed by hand. Config that GitHub only reads from the default branch, like `.github/dependabot.yml`, lives on `2.x` only.
 
 ### LiveClientTest
 
@@ -62,4 +62,4 @@ So to add a field: add the public property, map it in `getMapping()`, and regist
 
 **Value objects (`src/ValueObject/`)** — `Fbc`/`Fbp` (extending `Fb`) model the `_fbc`/`_fbp` cookie values with `fromString()` validation and `value()` serialization; assignable to `User::$fbc`/`$fbp` as either the typed object or a raw string. Both accept the optional trailing appendix segment that Meta's parameter builder writes (`getAppendix()`/`withAppendix()`) and write it back unchanged, so a cookie value round-trips byte for byte.
 
-The `facebook/php-business-sdk` dependency is used only for `Normalizer`, `Util::hash`, and `ApiConfig::APIVersion` (the API version is pinned to whatever that package ships).
+The `facebook/php-business-sdk` dependency is used only for `Normalizer`, `Util::hash`, and `ApiConfig::APIVersion` (the API version is pinned to whatever that package ships). Dependabot (`.github/dependabot.yml`) watches this one package on `2.x` and opens a PR that widens the constraint when Meta releases a new major; `1.x` is not watched. CI covers the normalization and hashing on the new major; run `LiveClientTest` once against it before tagging a release.

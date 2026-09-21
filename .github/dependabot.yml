@@ -1,0 +1,21 @@
+# Dependabot only reads this file from the default branch, 2.x, which is also the only branch it watches.
+#
+# Only facebook/php-business-sdk is watched. The Graph API version the client talks to is ApiConfig::APIVersion from that
+# package, and Meta ships a new major of it for every Graph API version, a few times a year. Without a PR that widens the
+# constraint, users of this library stay capped at the previous Graph API version.
+#
+# No composer.lock is committed, so a PR is only opened when a release falls outside the allowed range, i.e. for a new
+# major. The other dependencies are left out on purpose: their ranges already float, and the dev tools are held on the
+# majors that still support PHP 8.1.
+version: 2
+
+updates:
+    -   package-ecosystem: "composer"
+        directory: "/"
+        schedule:
+            interval: "weekly"
+        allow:
+            -   dependency-name: "facebook/php-business-sdk"
+        versioning-strategy: "widen"
+        labels:
+            - "dependencies"
