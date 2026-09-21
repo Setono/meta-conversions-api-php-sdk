@@ -27,11 +27,15 @@ vendor/bin/phpunit --filter it_sends_event
 
 Tests use the `@test` annotation with `snake_case` method names (no `test` prefix).
 
-CI (`.github/workflows/build.yaml`) runs coding standards, dependency analysis, PHPStan, and PHPUnit against PHP 8.1–8.4 on both `lowest` and `highest` dependency versions, so check lowest-version compatibility when touching dependencies. A separate workflow runs Roave's backwards-compatibility check on PRs — this is a public library, so avoid BC breaks to the public API.
+CI (`.github/workflows/build.yaml`) runs coding standards, dependency analysis, PHPStan, and PHPUnit against PHP 8.1–8.4 on both `lowest` and `highest` dependency versions, so check lowest-version compatibility when touching dependencies. A separate workflow runs Roave's backwards-compatibility check on PRs, comparing against the PR's base branch.
+
+### Branches
+
+There is no `master`. **`1.x`** is the default branch and holds the released 1.x line: bug fixes and additive changes only, and the BC check must stay green — this is a public library. **`2.x`** is the next major: BC breaks are allowed there, but every one must be documented in `UPGRADE-2.0.md`. Because the BC check compares against the PR's base, it is expected to be red on `2.x` PRs that break BC; its output should match what `UPGRADE-2.0.md` lists. Always pass `--base` to `gh pr create`. `Closes #123` only auto-closes issues when merged into the default branch, so issues fixed on `2.x` have to be closed by hand.
 
 ### LiveClientTest
 
-`tests/Client/LiveClientTest.php` hits the real Meta API. It self-skips unless the env vars in `phpunit.xml.dist` are set (`PIXEL_ID`, `ACCESS_TOKEN`, `TEST_EVENT_CODE`, `URL`, `EMAIL`). Copy `phpunit.xml.dist` to `phpunit.xml` and fill them in to run it.
+`tests/Client/LiveClientTest.php` hits the real Meta API. It self-skips unless the env vars in `phpunit.xml.dist` are set (`PIXEL_ID`, `ACCESS_TOKEN`, `TEST_EVENT_CODE`, `URL`, `EMAIL`). Copy `phpunit.xml.dist` to `phpunit.xml` and fill them in to run it. With a filled-in `phpunit.xml`, every full `phpunit` run sends a real test event and Infection replays it for every mutant it covers — move `phpunit.xml` aside before running Infection.
 
 ## Architecture
 
@@ -48,12 +52,12 @@ So to add a field: add the public property, map it in `getMapping()`, and regist
 
 **Two payload contexts** (`PAYLOAD_CONTEXT_SERVER` vs `PAYLOAD_CONTEXT_BROWSER`). The same objects serialize differently depending on whether they're sent server-side via the Conversions API or rendered into a client-side `fbq()` call. `User::getMapping()` strips server-only fields (IP, user agent, fbc, fbp) in browser context.
 
-**`Parameters` subclasses:** `Event` (the aggregate root — holds `User $userData`, `Custom $customData`, a list of `Pixel`, plus `metadata` for app-internal use that is never sent), `User` (customer matching data), `Custom` (event-specific data like value/currency/contents). `Event` auto-generates `eventId` (random, for [deduplication](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-id)) and `eventTime` in its constructor. `Event` is intentionally **not** `final` so consumers can subclass it into domain-specific events; the other data objects are `final`.
+**`Parameters` subclasses:** `Event` (the aggregate root — holds `User $userData`, `Custom $customData`, a list of `Pixel`, plus `metadata` for app-internal use that is never sent), `User` (customer matching data), `Custom` (event-specific data like value/currency/contents), `Content` (a single item in `Custom::$contents`). `Event` auto-generates `eventId` (random, for [deduplication](https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/server-event#event-id)) and `eventTime` in its constructor. `Event` is intentionally **not** `final` so consumers can subclass it into domain-specific events; the other data objects are `final`.
 
-**`Client` (`src/Client/Client.php`)** — `sendEvent()` serializes the event once, then POSTs it (form-encoded) to `graph.facebook.com/v{ApiConfig::APIVersion}/{pixelId}/events` once per associated pixel (each pixel carries its own access token). Non-200 responses throw `ClientException` built from `ErrorResponse`. HTTP is fully PSR-based: PSR-18 client and PSR-17 factories are auto-discovered via `php-http/discovery` but can be injected with `setHttpClient()` / `setRequestFactory()` / etc. The client is `LoggerAware` and defaults to `NullLogger`.
+**`Client` (`src/Client/Client.php`)** — `sendEvent()` delegates to `sendPreparedEvent($event->prepare())`. `Event::prepare()` returns a `PreparedEvent` (`src/Event/PreparedEvent.php`): the `getPayload()` array plus the delivery information (event name and id, pixels, test event code), made of scalars/arrays/`Pixel` only so consumers can hash at capture time and queue it. The pixels are cloned so it is a snapshot, and `withoutAccessTokens()`/`withAccessTokens()` (immutable) keep the tokens out of the queue and restore them by pixel id before sending. `sendPreparedEvent()` POSTs the payload (form-encoded) to `graph.facebook.com/v{ApiConfig::APIVersion}/{pixelId}/events` once per pixel (each pixel carries its own access token). Non-200 responses throw `ClientException` built from `ErrorResponse`. HTTP is fully PSR-based: PSR-18 client and PSR-17 factories are auto-discovered via `php-http/discovery` but can be injected with `setHttpClient()` / `setRequestFactory()` / etc. The client is `LoggerAware` and defaults to `NullLogger`.
 
 **`FbqGenerator` (`src/Generator/FbqGenerator.php`)** — the client-side counterpart. Generates the `fbq('init', ...)` / `fbq('track', ...)` JavaScript snippets, using the browser-context payload and reusing the same `eventId` so server and browser events deduplicate. `Event::isCustom()` decides between `track` and `trackCustom`.
 
-**Value objects (`src/ValueObject/`)** — `Fbc`/`Fbp` (extending `Fb`) model the `_fbc`/`_fbp` cookie values with `fromString()` validation and `value()` serialization; assignable to `User::$fbc`/`$fbp` as either the typed object or a raw string.
+**Value objects (`src/ValueObject/`)** — `Fbc`/`Fbp` (extending `Fb`) model the `_fbc`/`_fbp` cookie values with `fromString()` validation and `value()` serialization; assignable to `User::$fbc`/`$fbp` as either the typed object or a raw string. Both accept the optional trailing appendix segment that Meta's parameter builder writes (`getAppendix()`/`withAppendix()`) and write it back unchanged, so a cookie value round-trips byte for byte.
 
 The `facebook/php-business-sdk` dependency is used only for `Normalizer`, `Util::hash`, and `ApiConfig::APIVersion` (the API version is pinned to whatever that package ships).

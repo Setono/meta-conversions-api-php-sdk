@@ -139,6 +139,22 @@ class Event extends Parameters
     }
 
     /**
+     * Returns this event in its ready-to-send form: the payload is built, i.e. normalized and hashed, so the result
+     * holds no raw personal data and is safe to store or queue. Send it later with ClientInterface::sendPreparedEvent()
+     */
+    public function prepare(): PreparedEvent
+    {
+        return new PreparedEvent(
+            $this->eventName,
+            $this->eventId,
+            $this->getPayload(),
+            // cloned so the prepared event is a snapshot: changing a pixel on either side must not change the other
+            array_map(static fn (Pixel $pixel): Pixel => clone $pixel, $this->pixels),
+            $this->testEventCode,
+        );
+    }
+
+    /**
      * @return list<string>
      */
     public static function getEvents(): array

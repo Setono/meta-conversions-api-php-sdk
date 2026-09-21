@@ -6,6 +6,11 @@
 [![Code Coverage][ico-code-coverage]][link-code-coverage]
 [![Mutation testing][ico-infection]][link-infection]
 
+> [!NOTE]
+> This is the documentation for **2.x**, which is in development. The stable release lives on the
+> [`1.x` branch](https://github.com/Setono/meta-conversions-api-php-sdk/tree/1.x). If you are upgrading, see
+> [UPGRADE-2.0.md](UPGRADE-2.0.md).
+
 A small, typed PHP library for sending server-side events to Meta's (Facebook's)
 [Conversions API](https://developers.facebook.com/docs/marketing-api/conversions-api), and for generating the
 matching browser-side `fbq()` snippets.
@@ -31,6 +36,9 @@ way is to install it together with an implementation:
 ```bash
 composer require setono/meta-conversions-api-php-sdk kriswallsmith/buzz nyholm/psr7
 ```
+
+2.0 is in pre-release. Until it is stable, ask for it explicitly, e.g.
+`composer require setono/meta-conversions-api-php-sdk:^2.0@alpha`.
 
 `symfony/http-client` works just as well if you prefer it:
 
@@ -121,7 +129,7 @@ $event->testEventCode = 'TEST12345';
 
 ### Error handling
 
-`sendEvent()` throws a `ClientException` if Meta returns a non-2xx response. The message contains Meta's error message,
+`sendEvent()` and `sendPreparedEvent()` throw a `ClientException` if Meta returns a non-2xx response. The message contains Meta's error message,
 code, trace id and the raw response (including the user-facing explanation when Meta provides one):
 
 ```php
@@ -133,6 +141,28 @@ try {
     $logger->error('Could not send event to Meta', ['exception' => $e]);
 }
 ```
+
+## Sending events later, e.g. through a queue
+
+`User` holds the raw email addresses, phone numbers and names until the payload is built, so an `Event` should not be
+queued as is. `Event::prepare()` returns a `PreparedEvent` instead: the payload, already normalized and hashed, together
+with the pixels and the test event code. It is made of scalars, arrays and `Pixel` objects only, so it serializes with
+the PHP serializer or the Symfony serializer without any tricks. Hash at capture time, send later:
+
+```php
+// at capture time
+$queue->push($event->prepare()->withoutAccessTokens());
+
+// at send time
+$preparedEvent = $queue->pop();
+$client->sendPreparedEvent($preparedEvent->withAccessTokens([
+    'your_pixel_id' => 'your_access_token',
+]));
+```
+
+`withoutAccessTokens()` keeps the access tokens out of the queue and of any failure storage behind it, and
+`withAccessTokens()` takes the tokens indexed by pixel id and leaves pixels that are not in the list as they are. Both
+return a new instance. If your queue is trusted with the access tokens, you can skip both calls.
 
 ## Browser-side tracking with deduplication
 

@@ -223,4 +223,54 @@ final class EventTest extends TestCase
 
         $event->getPayload();
     }
+
+    /**
+     * @test
+     */
+    public function it_prepares(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->eventId = 'event_id';
+        $event->eventTime = 123;
+        $event->testEventCode = 'TEST123';
+        $event->pixels[] = new Pixel('pixel_1', 'token_1');
+        $event->pixels[] = new Pixel('pixel_2');
+        $event->userData->email[] = 'johndoe@example.com';
+
+        $preparedEvent = $event->prepare();
+
+        self::assertSame(Event::EVENT_PURCHASE, $preparedEvent->eventName);
+        self::assertSame('event_id', $preparedEvent->eventId);
+        self::assertSame('TEST123', $preparedEvent->testEventCode);
+        self::assertEquals($event->pixels, $preparedEvent->pixels);
+        self::assertSame($event->getPayload(), $preparedEvent->payload);
+
+        // the name and id are duplicated from the payload on purpose
+        self::assertSame($preparedEvent->eventName, $preparedEvent->payload['event_name']);
+        self::assertSame($preparedEvent->eventId, $preparedEvent->payload['event_id']);
+
+        // the personal data is hashed, i.e. the prepared event is safe to store
+        self::assertSame(['em' => ['55e79200c1635b37ad31a378c39feb12f120f116625093a19bc32fff15041149']], $preparedEvent->payload['user_data']);
+        self::assertStringNotContainsString('johndoe@example.com', serialize($preparedEvent));
+    }
+
+    /**
+     * @test
+     */
+    public function it_prepares_a_snapshot(): void
+    {
+        $event = new Event(Event::EVENT_PURCHASE);
+        $event->pixels[] = new Pixel('pixel_id', 'access_token');
+
+        $preparedEvent = $event->prepare();
+
+        $preparedPixel = $preparedEvent->pixels[0];
+        self::assertNotSame($event->pixels[0], $preparedPixel);
+
+        $preparedPixel->accessToken = 'changed on the prepared event';
+        self::assertSame('access_token', $event->pixels[0]->accessToken);
+
+        $event->pixels[0]->accessToken = 'changed on the event';
+        self::assertSame('changed on the prepared event', $preparedPixel->accessToken);
+    }
 }
