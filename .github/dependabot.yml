@@ -1,11 +1,15 @@
 # Dependabot only reads this file from the default branch, 2.x, which is also the only branch it watches.
 #
-# Only facebook/php-business-sdk is watched. The Graph API version the client talks to is ApiConfig::APIVersion from that
-# package, and Meta ships a new major of it for every Graph API version, a few times a year. Without a PR that widens the
-# constraint, users of this library stay capped at the previous Graph API version.
+# Two packages are watched:
+#
+# - facebook/php-business-sdk: the Graph API version the client talks to is ApiConfig::APIVersion from that package, and
+#   Meta ships a new major of it for every Graph API version, a few times a year. Without a PR that widens the
+#   constraint, users of this library stay capped at the previous Graph API version.
+# - facebook/capi-param-builder-php: a dev dependency used as a test oracle for the _fbc/_fbp cookie format, see
+#   tests/ValueObject/ParamBuilderConformanceTest.php. A new major should be tested against as soon as it exists.
 #
 # No composer.lock is committed, so a PR is only opened when a release falls outside the allowed range, i.e. for a new
-# major. The other dependencies are left out on purpose: their ranges already float, and the dev tools are held on the
+# major. Releases inside the range are picked up by the weekly scheduled run of the build workflow instead. The other dependencies are left out on purpose: their ranges already float, and the dev tools are held on the
 # majors that still support PHP 8.1.
 version: 2
 
@@ -16,6 +20,7 @@ updates:
             interval: "weekly"
         allow:
             -   dependency-name: "facebook/php-business-sdk"
+            -   dependency-name: "facebook/capi-param-builder-php"
         versioning-strategy: "widen"
         labels:
             - "dependencies"

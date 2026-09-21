@@ -101,4 +101,38 @@ final class FbpTest extends TestCase
 
         self::assertSame('fb.1.1656874832584.123123.AQEAAQMB', $fbp->withRandomNumber(123123)->value());
     }
+
+    /**
+     * @test
+     */
+    public function it_accepts_a_subdomain_index_above_two(): void
+    {
+        $fbp = Fbp::fromString('fb.3.1656874832584.1088522659');
+
+        self::assertSame(3, $fbp->getSubdomainIndex());
+        self::assertSame('fb.3.1656874832584.1088522659', $fbp->value());
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider invalidSubdomainIndexes
+     */
+    public function it_rejects_an_invalid_subdomain_index(string $subdomainIndex): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        Fbp::fromString(sprintf('fb.%s.1656874832584.1088522659', $subdomainIndex));
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidSubdomainIndexes(): \Generator
+    {
+        yield 'a leading zero, which could not be written back unchanged' => ['01'];
+        yield 'negative' => ['-1'];
+        yield 'more digits than a domain can have dots' => ['1000'];
+        yield 'not a number' => ['x'];
+    }
 }

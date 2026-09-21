@@ -18,7 +18,7 @@ final class Fbc extends Fb
      * - fb.1.1657051589577.IwAR0rmfgHgxjdKoEopat9y2SPzyjGgfHm9AhdqygToWvarP59nPq15T07MiA
      * - fb.1.1788781160733.IwAR1a-b_c.AQECAQMB
      */
-    private const REGEXP_FBC = '/^fb\.([012])\.(\d{13})\.([A-Za-z0-9_-]+)(?:\.([A-Za-z0-9_-]{2,8}))?$/';
+    private const REGEXP_FBC = '/^fb\.(0|[1-9]\d{0,2})\.(\d{13})\.([A-Za-z0-9_-]+)(?:\.([A-Za-z0-9_-]{2,8}))?$/';
 
     private string $clickId;
 

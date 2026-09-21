@@ -25,7 +25,7 @@ final class Fbp extends Fb
     {
         // Must match something like this: fb.1.1656874832584.1088522659 or fb.1.1656874832584.1088522659.AQEAAQMB
         // NOTICE we match for 13 digits for the creation time. That number will be 14 digits in year 2286, so I guess it's safe to test for a specific number of digits ;)
-        if (preg_match('/^fb\.([012])\.(\d{13})\.(\d+)(?:\.([A-Za-z0-9_-]{2,8}))?$/', $value, $matches) !== 1) {
+        if (preg_match('/^fb\.(0|[1-9]\d{0,2})\.(\d{13})\.(\d+)(?:\.([A-Za-z0-9_-]{2,8}))?$/', $value, $matches) !== 1) {
             throw new InvalidArgumentException(sprintf('The value "%s" didn\'t match the expected pattern for fbp', $value));
         }
 

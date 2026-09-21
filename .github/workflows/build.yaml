@@ -6,6 +6,11 @@ on:
             - "2.x"
     pull_request: ~
     workflow_dispatch: ~
+    schedule:
+        # No composer.lock is committed, so every run installs the newest allowed dependencies. Running weekly means a
+        # release that breaks something, e.g. a change to the cookie format in facebook/capi-param-builder-php, is
+        # noticed even when nobody pushes
+        -   cron: "0 5 * * 1"
 
 jobs:
     coding-standards:
