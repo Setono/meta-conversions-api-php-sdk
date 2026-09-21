@@ -29,6 +29,17 @@ class ClientException extends \RuntimeException
         ));
     }
 
+    /**
+     * @param non-empty-list<string> $pixelIds the ids of the pixels that have no access token
+     */
+    public static function missingAccessToken(array $pixelIds): self
+    {
+        return new self(sprintf(
+            'The event was not sent to Meta/Facebook because these pixels have no access token: %s. If the access tokens were removed with PreparedEvent::withoutAccessTokens(), add them back with PreparedEvent::withAccessTokens() before sending',
+            implode(', ', $pixelIds),
+        ));
+    }
+
     public static function fromErrorResponse(ErrorResponse $errorResponse): self
     {
         $message = sprintf(

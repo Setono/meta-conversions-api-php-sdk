@@ -45,6 +45,19 @@ final class Client implements ClientInterface, LoggerAwareInterface
             return;
         }
 
+        // Meta rejects a request without an access token, and with an error that does not mention the token.
+        // All pixels are checked before anything is sent, so that the event is never delivered to only some of them
+        $pixelIdsWithoutAccessToken = [];
+        foreach ($preparedEvent->pixels as $pixel) {
+            if (null === $pixel->accessToken || '' === $pixel->accessToken) {
+                $pixelIdsWithoutAccessToken[] = $pixel->id;
+            }
+        }
+
+        if ([] !== $pixelIdsWithoutAccessToken) {
+            throw ClientException::missingAccessToken($pixelIdsWithoutAccessToken);
+        }
+
         $httpClient = $this->getHttpClient();
         $requestFactory = $this->getRequestFactory();
 

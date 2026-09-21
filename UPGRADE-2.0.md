@@ -23,6 +23,14 @@ whether the event has any pixels. The request that is sent is byte for byte the 
 difference: an event without pixels whose data is invalid, an unknown `action_source` for instance, now throws when the
 payload is built. In 1.x the client logged the missing pixels and returned without ever building the payload.
 
+## Pixels without an access token are rejected before any request is made
+
+In 1.x the client sent the request anyway, and Meta answered with an error that does not mention the access token
+("Unsupported post request. Object with ID ... does not exist, cannot be loaded due to missing permissions ..."). In 2.0
+the client throws a `ClientException` naming the pixels instead. The exception class is the same as before, but with
+several pixels there is a difference: all pixels are checked first, so the pixels listed before the one without an
+access token no longer receive the event.
+
 ## New in 2.0
 
 Nothing you have to change, but worth knowing about: `Event::prepare()` returns a `PreparedEvent` that holds no raw
